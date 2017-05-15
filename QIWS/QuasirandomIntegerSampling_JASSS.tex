@@ -33,7 +33,7 @@
 \title{Population Synthesis with Quasirandom Integer Sampling}
 
 %All authors should be included in the submission. To anonymise the submission, set to 'true' the \reviewcopy command below. However, before submitting  you can check that all the informations you entered are correct by temporarily setting it to 'false'. Please remember to set it back to 'true' before the submission.
-\reviewcopy{false} 
+\reviewcopy{true} 
 
 \author[1]{Andrew P Smith}
 
@@ -158,7 +158,7 @@ Microsynthesis, microsimulation
 
 Iterative Proportional Fitting (IPF) is a popular and well-established
 technique for generating synthetic populations from marginal data.
-Compared with other methods of `population synthesis' IPF is relatively
+Compared with other methods of population synthesis, IPF is relatively
 fast, simple and easy to implement, as showcased in a practical
 introduction to the subject by \cite{lovelace_spatial_2016}. Furthermore,
 a number of software packages aimed at facilitating IPF for spatial
@@ -168,29 +168,14 @@ microsimulation and other applications have been published (e.g.
 However, the method has various limitations from the perspective of
 spatial microsimulation for social simulation. For example, IPF
 generates fractional weights instead of integer populations, an issue
-tackled by `integerisation' techniques \cite{lovelace_truncate_2013};
-handles `empty cells' poorly \cite{lovelace_evaluating_2015}; and requires a
-representative individual-level `seed' population. The most in-depth
-exploration of such limitations and the mathematical behaviour of IPF to
-date is a Ph.D. thesis on the subject (\cite{zaloznik_iterative_2011}).
+tackled by integerisation techniques \cite{lovelace_truncate_2013};
+handles empty cells poorly \cite{lovelace_evaluating_2015}; and requires a representative individual-level `seed' population. The most in-depth exploration of such limitations and the mathematical behaviour of IPF to date is a Ph.D. thesis on the subject (\cite{zaloznik_iterative_2011}).
 
-In this paper we investigate sampling techniques where a population
-matrix is built exclusively in the integer domain. The research reported 
-in this paper is partly motivated by the need to generate individual 
-simulated agents for an entire city.  Journey patterns are imputed to 
-each member of the simulated population using app-based mobility traces 
-in order to generate travel demand schedules for an entire urban population 
-in pseudo-real-time.
+In this paper we investigate sampling techniques where a synthetic population is built exclusively in the integer domain. The research reported in this paper forms part of, and is partly motivated by, a larger body of work in which there is a requirement to generate individual simulated agents for an entire city. In the larger project, journey patterns are imputed to each member of the simulated population using app-based mobility traces in order to generate travel demand schedules for an entire urban population in pseudo-real-time.
 
 Working exclusively in the integer domain requires that marginal frequencies are integral. Often, these are expressed as probabilities rather than frequencies. We propose that integerising each marginal at this stage is preferable to integerising the final population. Mathematically, integerisation in a single dimension is straightforward and a closest solution can always be quantified.    
 
-We show that integer sampling can only work effectively if a quasirandom (as opposed to a
-pseudorandom) number generator is used, and this in itself is not
-sufficient to work in all cases. We also show that this problem can be
-overcome by combining the quasirandom generator with a
-sampling-without-replacement algorithm. We then look at the statistical
-properties of the resulting populations, comparing them to populations
-generated with the IPF algorithm.
+We show that by using the technique of without-replacement sampling, we can guarantee that the randomly sampled population will exactly match the marginal data. Secondly we compare the statistical properties of populations generated with IPF, and sampled using pseudo- and quasirandom numbers and show that the latter sampling technique provides better degeneracy, closer to that if IPF.
 
 \section{Theory}\label{theory}
 \subsection{Quasirandom Numbers}\label{quasirandom-numbers}
@@ -237,7 +222,11 @@ In the later analysis of our algorithm, for comparison, we use the
 MT19937 variant of the Mersenne Twister as our pseudorandom generator
 (\cite{matsumoto_mersenne_1998}).
 
-Consider the following simple example: we wish to calculate the expected value of the sum of 2 fair and independent dice, sampling 100 times. Using pseudorandom sampling, with a standard error proportional to the square root of the number of samples, we would expect to get an estimate of \(7 \pm 10\%\). However, using quasirandom sampling, since the standard error is inversely proportional to the number of samples, the estimate will be \(7 \pm 1\%\). To achieve the same accuracy with peudorandom numbers would require 10000 samples.
+Consider the following simple example: we wish to calculate the expected value of the sum of 2 fair and independent dice, sampling 100 times. Using pseudorandom sampling, with a standard error proportional to the square root of the number of samples, we would expect to get an estimate of \(7 \pm 10\%\). However, using quasirandom sampling, since the standard error
+\footnote{Strictly speaking, it is not mathematically valid to attribute a standard error value to results generated from a quasirandom sequence as there is no randomness. However the value is useful for comparison.} 
+  is inversely proportional to the number of samples, the estimate will be \(7 \pm 1\%\). To achieve the same accuracy with peudorandom numbers would require 10000 samples.
+
+When using quasirandom sequences it is extremely important to ensure that every sample is used. Discarding a subset of the samples will potentially destroy the statistical properties of the entire sequence. For this reason quasirandom sequences should not be used in a rejection method to convert to a different distribution (such as the \href{https://en.wikipedia.org/wiki/Ziggurat_algorithm}{Ziggurat algorithm})
 
 \subsection{Sampling without Replacement}\label{sampling-without-replacement}
 
@@ -363,12 +352,9 @@ likelihood estimation, chi-squared fitting, or least-squares fitting.
 
 \section{The Algorithm}\label{the-algorithm}
 
-The final version of the algorithm is outlined in this section, a
-description of the process by which we arrived at this algorithm follows
-in the Discussion.
+Thi section describes the Quasirandom Integer Without-replacement Sampling (QIWS) algorithm. A commentary on the process by which we arrived at this algorithm follows in the Discussion.
 
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
+\begin{enumerate*}
 \item
   Create an \(D\)-dimensional discrete without-replacement distribution
   using the marginals \(\mathbf{m}_i\)
@@ -386,103 +372,37 @@ in the Discussion.
   Compute a \(\chi^2\) statistic and a p-value, which represents the
   statistical significance of the synthetic population (in this case we
   prefer higher p-values, i.e.~statistically insignificant populations).
-\end{enumerate}
+\end{enumerate*}
 
 \subsection{The Implementation}\label{the-implementation}
 
 The algorithm is implemented in an \texttt{R} package called
-\texttt{humanleague}, written in \texttt{C++11} and \texttt{C} and
-exposed to \texttt{R} via \texttt{Rcpp}. We used open source
-implementations of the Sobol sequence generator (\cite{johnson_stevengj/nlopt:_nodate}) and the
-incomplete gamma function (\cite{burkardt_asa032_2008}\cite{noauthor_notitle_nodate}), the latter in order to 
-compute the p-value.
+\texttt{humanleague}. A description of the technical implementation details can be found in the Appendix. The package is open source under a GPL licence and available at \url{https://github.com/CatchDat/humanleague}. It has been submitted for inclusion in the official CRAN repository of \texttt{R} packages.
 
-One of the many useful features introduced in \texttt{C++11} was a
-standard random number framework, which splits underlying (uniform) generators
-and the distributions, and defines APIs that these classes should
-implement \href{http://en.cppreference.com/w/cpp/numeric/random}{(see
-e.g. http://en.cppreference.com/w/cpp/numeric/random)}. There is no
-native support for quasirandom generators nor for without-replacement
-distributions, but by conforming to the APIs they can be implemented to
-interoperate with the native generator and distribution implementations.
+In order to use this package, the input data requirements are a number of discrete integer marginal distributions, i.e. counts of population in each state of some category. If any marginal data is expressed as probabilities, a function is provided to convert these to integer frequencies.
 
-It should be noted that there are two instances where the new types
-extend the standard interfaces (see class definitions below):
+\subsection{Usage Examples}\label{usage-examples}
 
-\begin{itemize}
-\item
-  a quasirandom generator has inherent dimensionality, and thus should
-  return that number of variates per sample. In our implementation we
-  provided both the standard single-valued \texttt{operator()} and the
-  extended vector \texttt{buf()} accessor functions.
-\item
-  without-replacement sampling will eventually become exhausted, as a
-  result we provided a boolean \texttt{empty()} function to check if the
-  distribution is exhausted. If exhausted, the accessor functions will
-  throw an exception.
-\end{itemize}
-
-The Sobol sequence generator is implemented in such a way that it is not reset
-each time a population is requested, allowing different populations to
-be generated each time, up to the limit of the sequence being exhausted.
-Our implementation uses 32-bit unsigned integers, thus allowing for
-\(\approx4\times10^9\) samples (in each dimension).
+\texttt{prob2IntFreq}: this function converts an array of discrete probabilities \(p_i\) into integral frequencies, given an overall population \(P\). It also returns the mean square error between the integer frequencies and their unconstrained values \(p_iP\).
 
 \begin{Shaded}
-\begin{Highlighting}[]
-  \KeywordTok{class} \NormalTok{Sobol}
-  \NormalTok{\{}
-  \KeywordTok{public}\NormalTok{:}
-    \KeywordTok{typedef} \DataTypeTok{uint32_t} \NormalTok{result_type;}
-    \KeywordTok{explicit} \NormalTok{Sobol(}\DataTypeTok{uint32_t} \NormalTok{dim, result_type nSkip = }\DecValTok{0u}\NormalTok{);}
-    \NormalTok{~Sobol();}
-    \DataTypeTok{const} \NormalTok{std::vector<result_type>& buf();}
-    \NormalTok{result_type }\KeywordTok{operator}\NormalTok{()();}
-    \DataTypeTok{void} \NormalTok{skip(result_type n);}
-    \NormalTok{result_type min() }\DataTypeTok{const}\NormalTok{;}
-    \NormalTok{result_type max() }\DataTypeTok{const}\NormalTok{;}
-  \KeywordTok{private}\NormalTok{:}
-    \NormalTok{SobolData* m_s;}
-    \DataTypeTok{uint32_t} \NormalTok{m_dim;}
-    \NormalTok{std::vector<result_type> m_buf;}
-    \DataTypeTok{uint32_t} \NormalTok{m_pos;}
-  \NormalTok{\};}
+\begin{verbatim}
+> humanleague::prob2IntFreq(c(0.1, 0.2, 0.3, 0.4), 17)
+$freq
+[1] 2 3 5 7
 
-  \KeywordTok{template}\NormalTok{<}\KeywordTok{typename} \NormalTok{I> }\CommentTok{// I must be an integral type}
-  \KeywordTok{class} \NormalTok{discrete_distribution_without_replacement}
-  \NormalTok{\{}
-  \KeywordTok{public}\NormalTok{:}
-    \KeywordTok{typedef} \NormalTok{I result_type;}
-    \CommentTok{// enforce integral types only}
-    \KeywordTok{static_assert}\NormalTok{(std::is_integral<I>::value, }
-      \StringTok{"discrete_distribution_without_replacement: only integral types supported"}\NormalTok{);}
-    \NormalTok{discrete_distribution_without_replacement(}\KeywordTok{typename} \NormalTok{std::vector<I>::const_iterator b, }
-                                              \KeywordTok{typename} \NormalTok{std::vector<I>::const_iterator e);}
-    \CommentTok{// std::distribution compatibility}
-    \KeywordTok{template}\NormalTok{<}\KeywordTok{typename} \NormalTok{R>}
-    \NormalTok{result_type }\KeywordTok{operator}\NormalTok{()(R& rng);}
-    \NormalTok{result_type }\KeywordTok{operator}\NormalTok{()(result_type r);}
-    \DataTypeTok{bool} \NormalTok{empty() }\DataTypeTok{const}\NormalTok{;}
-  \KeywordTok{private}\NormalTok{:}
-    \NormalTok{std::vector<I> m_freq;}
-    \NormalTok{I m_sum;}
-  \NormalTok{\};}
-\end{Highlighting}
+$var
+[1] 0.075
+\end{verbatim}
 \end{Shaded}
 
-The package is open source and available at
-\url{https://github.com/CatchDat/humanleague}. It has been submitted for inclusion in the official CRAN repository of \texttt{R} packages.
-
-The implementation supports dimensionalities up to 12, although this
+\texttt{synthPop}: This is function that performs the microsynthesis. The function supports dimensionalities up to 12, although this
 limit is arbitrary and could be increased if necessary. Input is simply
-a list of integer vectors representing the marginals. Marginal vectors
+a list of (between 2 and 12) integer vectors representing the marginals. Marginal vectors
 must all sum to the population (to satisfy the population constraint) \(P\).
-
 The output is broadly compatible with the established \texttt{mipfp}
 (Barthelemy \& Suesse 2016) \texttt{R} package:
-
-\begin{itemize}
-%\tightlist
+\begin{itemize*}
 \item
   \(D\)-dimensional population table \(\mathbf{T_\mathbf{k}}\)
 \item
@@ -496,41 +416,40 @@ The output is broadly compatible with the established \texttt{mipfp}
   \(\chi^2\) statistic
 \item
   p-value
-\end{itemize}
-
-as can be seen by the example output below:
-
+\end{itemize*} as can be seen by the example output below:
+\begin{Shaded}
 \begin{verbatim}
-  > x=c(10,10,10)
-  > p=humanleague::synthPop(list(x,x))
-  > p
-  $method
-  [1] "qiws"
-  
-  $conv
-  [1] TRUE
-  
-  $chiSq
-  [1] 1.2
-  
-  $pValue
-  [1] 0.8780986
-  
-  $error.margins
-  [1] 0 0
-  
-  $p.hat
-            [,1]      [,2]      [,3]
-  [1,] 0.1111111 0.1111111 0.1111111
-  [2,] 0.1111111 0.1111111 0.1111111
-  [3,] 0.1111111 0.1111111 0.1111111
-  
-  $x.hat
-       [,1] [,2] [,3]
-  [1,]    4    3    3
-  [2,]    4    3    3
-  [3,]    2    4    4
+> x=c(10,10,10)
+> p=humanleague::synthPop(list(x,x))
+> p
+$method
+[1] "qiws"
+
+$conv
+[1] TRUE
+
+$chiSq
+[1] 1.2
+
+$pValue
+[1] 0.8780986
+
+$error.margins
+[1] 0 0
+
+$p.hat
+          [,1]      [,2]      [,3]
+[1,] 0.1111111 0.1111111 0.1111111
+[2,] 0.1111111 0.1111111 0.1111111
+[3,] 0.1111111 0.1111111 0.1111111
+
+$x.hat
+     [,1] [,2] [,3]
+[1,]    4    3    3
+[2,]    4    3    3
+[3,]    2    4    4
 \end{verbatim}
+\end{Shaded}
 
 \section{Comparison to Existing
 Methods}\label{comparison-to-existing-methods}
@@ -549,8 +468,7 @@ package \texttt{rakeR}) due to that fact that integerisation can cause a
 mismatch in one or more marginals.
 
 IPF was initialised with a random seed array, each element uniformly
-distributed in \([0,2)\), so that for the p-value tests the initial total population would be 
-approximately equal to the final total.
+distributed in \([0,2)\), so that for the p-value tests the initial total population would be approximately equal to the final total.
 
 The first three tests are made-up examples. The remainder are marginal
 figures derived from 2011 UK census data at the MSOA level (mid-layer
@@ -636,8 +554,6 @@ normalised performance values.
 	\label{tab:}	
 \end{table}
 
-
-
 \section{Discussion}\label{discussion}
 
 \subsection{Evolution of the
@@ -649,9 +565,7 @@ state. If the resulting population is used as a basis for Agent-Based
 Modelling (ABM), then an integerisation process must be applied to the
 synthesised population. Whilst this process preserves the overall
 population, it may not exactly preserve all of the marginal
-distributions.
-
-Although integerisation may not introduce significant errors, the
+distributions. Although the integerisation process may not introduce significant errors, the
 authors considered whether there was an alternative method of synthesis
 that would directly result in an integral population that exactly
 matched the marginal distributions.
@@ -663,7 +577,7 @@ sequences.
 
 Firstly, it was demonstrated that naive pseudorandom sampling could not
 reliably generate populations matching the marginals. Since successive
-samples are ostensibly independent, there is no mechanism to reduce
+samples are ostensibly independent, there is no mechanism to prevent
 under- or oversampling of any particular state.
 
 The initial algorithm simply sampled the marginal distributions (with
@@ -763,7 +677,7 @@ and resample if necessary.
 QIWS performance is far superior to IPF. One reason for this is that
 QIWS is not iterative, but the following points should be noted:
 
-\begin{itemize}
+\begin{itemize*}
 \item
   the comparison is somewhat unfair since our implementation is compiled
   \texttt{C} and \texttt{C++} code and Ipfp's implementation is
@@ -773,7 +687,7 @@ QIWS is not iterative, but the following points should be noted:
   most workflows, and thus speed may be of marginal advantage. However
   in large-scale ensemble simulation applications, the performance of
   QIWS may be an advantage.
-\end{itemize}
+\end{itemize*}
 
 \subsection{Application / Range of Use}\label{application-range-of-use}
 
@@ -892,6 +806,88 @@ funding for this work.
 % \section{Appendix A: <title of the appendix>}
 % \section{Appendix B: <title of the appendix>}
 % ...
+
+\section{Appendix: Implementation - Technical Detail} 
+The algorithm is implemented in an \texttt{R} package called
+\texttt{humanleague}, written in \texttt{C++11} and \texttt{C} and
+exposed to \texttt{R} via \texttt{Rcpp}. We used open source
+implementations of the Sobol sequence generator (\cite{johnson_stevengj/nlopt:_nodate}) and, in order to 
+compute the p-value, the
+incomplete gamma function (\cite{burkardt_asa032_2008})
+
+One of the many useful features introduced in \texttt{C++11} was a
+standard random number framework, which splits underlying (uniform) generators
+and the distributions, and defines APIs that these classes should
+implement \href{http://en.cppreference.com/w/cpp/numeric/random}{(see
+e.g. http://en.cppreference.com/w/cpp/numeric/random)}. There is no
+native support for quasirandom generators nor for without-replacement
+distributions, but by conforming to the APIs they can be implemented to
+interoperate with the native generator and distribution implementations.
+
+It should be noted that there are two instances where the new types
+extend the standard interfaces (see class definitions below):
+
+\begin{itemize*}
+\item
+  a quasirandom generator has inherent dimensionality, and thus should
+  return that number of variates per sample. In our implementation we
+  provided both the standard single-valued \texttt{operator()} and the
+  extended vector \texttt{buf()} accessor functions.
+\item
+  without-replacement sampling will eventually become exhausted, as a
+  result we provided a boolean \texttt{empty()} function to check if the
+  distribution is exhausted. If exhausted, the accessor functions will
+  throw an exception.
+\end{itemize*}
+
+The Sobol sequence generator is implemented in such a way that it is not reset
+each time a population is requested, allowing different populations to
+be generated each time, up to the limit of the sequence being exhausted.
+Our implementation uses 32-bit unsigned integers, thus allowing for
+\(\approx4\times10^9\) samples (in each dimension).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \KeywordTok{class} \NormalTok{Sobol}
+  \NormalTok{\{}
+  \KeywordTok{public}\NormalTok{:}
+    \KeywordTok{typedef} \DataTypeTok{uint32_t} \NormalTok{result_type;}
+    \KeywordTok{explicit} \NormalTok{Sobol(}\DataTypeTok{uint32_t} \NormalTok{dim, result_type nSkip = }\DecValTok{0u}\NormalTok{);}
+    \NormalTok{~Sobol();}
+    \DataTypeTok{const} \NormalTok{std::vector<result_type>& buf();}
+    \NormalTok{result_type }\KeywordTok{operator}\NormalTok{()();}
+    \DataTypeTok{void} \NormalTok{skip(result_type n);}
+    \NormalTok{result_type min() }\DataTypeTok{const}\NormalTok{;}
+    \NormalTok{result_type max() }\DataTypeTok{const}\NormalTok{;}
+  \KeywordTok{private}\NormalTok{:}
+    \NormalTok{SobolData* m_s;}
+    \DataTypeTok{uint32_t} \NormalTok{m_dim;}
+    \NormalTok{std::vector<result_type> m_buf;}
+    \DataTypeTok{uint32_t} \NormalTok{m_pos;}
+  \NormalTok{\};}
+
+  \KeywordTok{template}\NormalTok{<}\KeywordTok{typename} \NormalTok{I> }\CommentTok{// I must be an integral type}
+  \KeywordTok{class} \NormalTok{discrete_distribution_without_replacement}
+  \NormalTok{\{}
+  \KeywordTok{public}\NormalTok{:}
+    \KeywordTok{typedef} \NormalTok{I result_type;}
+    \CommentTok{// enforce integral types only}
+    \KeywordTok{static_assert}\NormalTok{(std::is_integral<I>::value, }
+      \StringTok{"discrete_distribution_without_replacement: only integral types supported"}\NormalTok{);}
+    \NormalTok{discrete_distribution_without_replacement(}\KeywordTok{typename} \NormalTok{std::vector<I>::const_iterator b, }
+                                              \KeywordTok{typename} \NormalTok{std::vector<I>::const_iterator e);}
+    \CommentTok{// std::distribution compatibility}
+    \KeywordTok{template}\NormalTok{<}\KeywordTok{typename} \NormalTok{R>}
+    \NormalTok{result_type }\KeywordTok{operator}\NormalTok{()(R& rng);}
+    \NormalTok{result_type }\KeywordTok{operator}\NormalTok{()(result_type r);}
+    \DataTypeTok{bool} \NormalTok{empty() }\DataTypeTok{const}\NormalTok{;}
+  \KeywordTok{private}\NormalTok{:}
+    \NormalTok{std::vector<I> m_freq;}
+    \NormalTok{I m_sum;}
+  \NormalTok{\};}
+\end{Highlighting}
+\end{Shaded}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
