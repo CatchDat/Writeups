@@ -249,20 +249,20 @@ Given a discretely distributed population \(P\) of individuals which can be cate
 \(\{f_1,f_2,...f_n\}\), a random sample \(i \in \{1...n\}\) has
 probability
 \begin{equation}
-p_i = \frac{f_i}{\sum\limits_{j=1}^{n}f_j}
+p_i = \frac{f_i}{\sum\limits_{k=1}^{n}f_k}
 \end{equation}
 Once a sample \(i\) is taken the distribution is adjusted to
 \(\{f_1,f_2,...f_i-1,...f_n\}\), with resultant impact on \(p\). Once
 \(f_i\) has reached zero no further samples can take the value \(i\)
-since \(p(i) = 0\).
+since \(p_i = 0\).
 
 Since \(f_i\) cannot be oversampled, this implies that all the other
-states \(f_{j\neq{i}}\) cannot be undersampled. By extension, if all but
+states \(f_{j\neq{i}}\) cannot be collectively undersampled. By extension, if all but
 one states \(f_{i\neq{j}}\) cannot be oversampled, then \(f_j\) cannot
 be undersampled. Thus each state can neither be under- nor oversampled:
 the distribution must be matched exactly.
 
-Extending this to two dimensions is straightforward: given marginal frequency vectors \(\mathbf{f}\) and \(\mathbf{g}\), each (for argument's sake) of length \(n\), and each summing to \(P\), take a random two dimensional sample \((i,j) \in \{1...n\}^2\) with probability
+Extending this to two dimensions is straightforward: given marginal frequency vectors \(\mathbf{f}\) and \(\mathbf{g}\), each summing to \(P\) and (for argument's sake) of length \(n\), take a random two dimensional sample \((i,j) \in \{1...n\}^2\) with probability
 \begin{equation}
 p_{i,j} = \frac{f_{i}g_{j}}{\sum\limits_{k=1}^{n}f_k\sum\limits_{k=1}^{n}g_k}
 \end{equation}
@@ -273,12 +273,11 @@ f_i \leftarrow f_i-1 \\
 g_j \leftarrow g_j-1 
 \end{split}
 \end{equation} 
-This process can be repeated up to \(P\) times, when both marginal freqency vectors will be exhausted. The process 
-extends easily to higher dimensions.
+This process can be repeated up to \(P\) times, when both marginal freqency vectors will be exhausted. The process extends easily to higher dimensions.
 
 \subsection{Integerisation of Probabilities}\label{integerisation-of-probabilities}
 
-Givena vector of discrete probabilities \(p_i\) for each state in a single category, and an overall population \(P\), the nearest integer frequencies \(f_i\) can be obtained using the following algorithm:
+Given a vector of discrete probabilities \(p_i\) for each state in a single category, and an overall population \(P\), the nearest integer frequencies \(f_i\) can be obtained using the following algorithm:
 firstly obtain a lower bound for integer frequencies by computing
 \begin{equation}
 \begin{split}
@@ -303,10 +302,10 @@ not provide data at an individual-level, for privacy reasons among
 others.
 
 A mathematical statement of the problem is as
-follows:\footnote{In the notation below, the index \(i\) is scalar and
+follows:\footnote{In our notation the index \(i\) is scalar and
   refers to a particular dimension. The index \(\mathbf{k}\) is a vector
   index \(\{k_1, k_2,...k_D\}\) of length \(D\), the dimensionality of
-  the problem.}
+  the problem, and refers to a single state within the contingency table.}
 we wish to generate a population \(P\) of individuals which can be characterised into \(D\) separate categories, 
 each of which can occupy \(l\) discrete states. Each category is represented by a known frequency vector
 \(\mathbf{m}_i\) of length \(l_i\) giving the marginal occurences of a state within a single category. 
@@ -664,12 +663,12 @@ exhausting the period of the generator.
 This flaw drove the authors to come up with an alternative formulation
 of the algorithm, and it transpired that without-replacement sampling
 would guarantee that the population matched all marginals by design (as
-explained in section 2.2), eliminating the need for the correction step
+explained in section \ref{sampling-without-replacement}), eliminating the need for the correction step
 entirely. In fact, this method is guaranteed to work regardless of the
 choice of underlying random number generation.
 
 The next phase of the work was to analyse generated populations
-statistically, focussing on the degeneracy of the resulting populations.
+statistically, focussing on the degeneracy of the resulting populations in order to determine whether quasirandom sampling offers any additional benefit.
 The results from this work, presented in the previous section, are
 discussed below.
 
@@ -809,7 +808,7 @@ initialise the IPF iteration. It may be that with further development of
 the algorithm some of these limitations could be overcome.
 
 As such we envisage QIWS as a technique that complements rather than
-supplants established methods, and publicise the technique as such.
+supplants established methods, and publicise the technique as such. The current implementation could perhaps be extended to deal with correlated and/or constrained marginals, and to be able to use data supplied as a smaller seed population as opposed to a fully-populated marginal.
 
 \section{Acknowledgements}\label{acknowledgements}
 
