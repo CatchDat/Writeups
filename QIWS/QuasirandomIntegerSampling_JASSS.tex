@@ -117,17 +117,20 @@
 Established methods for synthesising a population from geographically
 aggregated data are robust and well understood. However, most rely on
 the potentially detrimental process of integerisation if a
-whole-individual population is required, e.g. for use in Agent-Based
-Modelling. This paper investigates a sampling method of synthesis that
-is computationally efficient and results directly in integer
-populations. We showcase the concept of quasirandom sequences and
-demonstrate that they perform far better than pseudorandom numbers in
-this context. We demonstrate that sampling the marginal distributions
-\emph{without replacement} is crucial, and perform some comparative
-statistical analyses of example populations. Finally we highlight the
-advantages and disadvantages of our method over the established ones.
-The implementation is available in an open-source R package
-\texttt{humanleague}.
+whole-individual population is required, e.g. for use in agent-based
+modelling (ABM). This paper investigates a sampling method to synthesise
+integer populations that is computationally efficient.
+The method, Quasirandom Integer Without-replacement Sampling (QIWS),
+uses quasirandom sequences was found to outperform iterative proportional
+fitting (IPF), integerised
+using pseudorandom numbers. Model experiments demonstrate the method's
+behaviour, highlighting the importance of sampling from
+ the marginal distributions \emph{without replacement}.
+We conclude that he method has advantages over IPF 
+for the generation of spatial microdata for ABM when constraint
+variables have equal total populations (providing a direction for future work).
+The method has been implemented in open source software and is available via
+the R package \texttt{humanleague}.
 \end{abstract}
 
 \begin{keywords}
@@ -162,15 +165,23 @@ Compared with other methods of population synthesis, IPF is relatively
 fast, simple and easy to implement, as showcased in a practical
 introduction to the subject by \cite{lovelace_spatial_2016}. Furthermore,
 a number of software packages aimed at facilitating IPF for spatial
-microsimulation and other applications have been published (e.g.
-\cite{barthelemy_cran_2016}, \cite{jones_raker:_2016}).
+microsimulation and other applications have been published
+such as \cite{barthelemy_cran_2016} and \cite{jones_raker:_2016}).
 
 However, the method has various limitations from the perspective of
-spatial microsimulation for social simulation. For example, IPF
-generates fractional weights instead of integer populations, an issue
-tackled by integerisation; handles empty cells poorly (\cite{lovelace_evaluating_2015}); and requires a representative individual-level `seed' population. The most in-depth exploration of such limitations and the mathematical behaviour of IPF to date is a Ph.D. thesis on the subject (\cite{zaloznik_iterative_2011}).
+social simulation via agent-based models: IPF
+generates fractional weights instead of integer populations
+(an issue tackled by `integerisation');
+handles empty cells poorly (\cite{lovelace_evaluating_2015});
+and requires a representative individual-level `seed' population.
+These issues and the mathematics underlying them are explored
+in \cite{zaloznik_iterative_2011}.
 
-Integerisation, for example the 'truncate-replicate-sample' algorithm (\cite{lovelace_truncate_2013}) is a process by which a fractional population, for example that generated from seed and marginal data using IPF, is adjusted such that each state contains an integral population. Whilst the algorithm will always maintain the correct overall population, the adjustments can create a mismatch with the original marginal data.
+Integerisation is only a partial solution to the issue of fractional weights.
+Algorithms for integerisation such `truncate replicate sample'
+maintain the correct overall population,
+but the adjustments can create a mismatch between the with the original
+and simulated marginal data \citep{lovelace_truncate_2013}.
 
 In this paper we investigate sampling techniques where a synthetic population is built exclusively in the integer domain. The research reported in this paper forms part of, and is partly motivated by, a larger body of work in which there is a requirement to generate individual simulated agents for an entire city. In the larger project, the ultimate goal is to impute journey patterns to each member of the simulated population using app-based mobility traces in order to generate travel demand schedules for an entire urban population in pseudo-real-time.
 
