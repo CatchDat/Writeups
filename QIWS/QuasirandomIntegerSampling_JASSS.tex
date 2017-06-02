@@ -166,13 +166,13 @@ fast, simple and easy to implement, as showcased in a practical
 introduction to the subject by \cite{lovelace_spatial_2016}. Furthermore,
 a number of software packages aimed at facilitating IPF for spatial
 microsimulation and other applications have been published
-such as \cite{barthelemy_cran_2016} and \cite{jones_raker:_2016}).
+such as \cite{barthelemy_cran_2016} and \cite{jones_raker:_2016}.
 
 However, the method has various limitations from the perspective of
 social simulation via agent-based models: IPF
 generates fractional weights instead of integer populations
 (an issue tackled by `integerisation');
-handles empty cells poorly (\cite{lovelace_evaluating_2015});
+handles empty cells poorly \citep{lovelace_evaluating_2015};
 and requires a representative individual-level `seed' population.
 These issues and the mathematics underlying them are explored
 in \cite{zaloznik_iterative_2011}.
@@ -184,6 +184,22 @@ but the adjustments can create a mismatch between the with the original
 and simulated marginal data \citep{lovelace_truncate_2013}.
 
 In this paper we investigate sampling techniques where a synthetic population is built exclusively in the integer domain. The research reported in this paper forms part of, and is partly motivated by, a larger body of work in which there is a requirement to generate individual simulated agents for an entire city. In the larger project, the ultimate goal is to impute journey patterns to each member of the simulated population using app-based mobility traces in order to generate travel demand schedules for an entire urban population in pseudo-real-time.
+
+The motivation behind the development of this method came from the fact
+that IPF, in general, does not generate integral populations in each
+state. If the resulting population is used as a basis for Agent-Based
+Modelling (ABM), then an integerisation process must be applied to the
+synthesised population. Whilst this process preserves the overall
+population, it may not exactly preserve all of the marginal
+distributions. Although the integerisation process may not introduce significant errors, the
+authors considered whether there was an alternative method of synthesis
+that would directly result in an integral population that exactly
+matched the marginal distributions.
+
+We could not find any references in the literature on the use of
+quasirandom sequences for the purpose of population synthesis, and so
+decided to investigate the suitability of sampling algorithms using such
+sequences.
 
 Working exclusively in the integer domain requires that marginal frequencies are integral. Often, these are expressed as probabilities rather than frequencies. We propose that integerising each marginal at this stage is preferable to integerising the final population. Mathematically, integerisation in a single dimension is straightforward and a demonstrably optimal (i.e. closest) solution can always be reached.    
 
@@ -198,9 +214,9 @@ Quasirandom numbers, often referred to as low discrepancy sequences, are
 preferential to pseudorandom numbers in many applications, despite not
 having some of the (appearance of) randomness that good pseudorandom
 generators possess. In this work we focus on the Sobol quasirandom
-sequence (\cite{sobol_1967}) with subsequent implementation and refinement by \cite{bratley_algorithm_1988} and \cite{joe_remark_2003}.
+sequence \citep{sobol_1967} with subsequent implementation and refinement by \cite{bratley_algorithm_1988} and \cite{joe_remark_2003}.
 
-To compare and contrast quasirandom and pseudorandom numbers, we use the MT19937 variant of the Mersenne Twister pseudorandom generator (\cite{matsumoto_mersenne_1998}).
+To compare and contrast quasirandom and pseudorandom numbers, we use the MT19937 variant of the Mersenne Twister pseudorandom generator \citep{matsumoto_mersenne_1998}.
 
 Figure 1 qualitatively illustrates the difference between pseudo- and
 quasirandom sampling. Each plot contains 2000 uniform points in two
@@ -354,6 +370,7 @@ p_{\mathbf{k}} = \prod\limits_{i=1}^{D}(\mathbf{m}_i)_\mathbf{k}/P
 \label{eqn:stateprob}
 \end{equation}
 for which a two-dimensional example is illustrated for clarity in figure \ref{fig:stateprob}.
+
 The degrees of freedom \(d\) of the system (required in order to
 calculate the statistical significance of the population) is given by
 \begin{equation}
@@ -392,6 +409,10 @@ p-value, i.e.~a low statistical significance and a high-degeneracy.
 \section{The Algorithm}\label{the-algorithm}
 
 This section describes the Quasirandom Integer Without-replacement Sampling (QIWS) algorithm. A commentary on the process by which we arrived at this algorithm follows in the Discussion.
+
+The inputs required for the algorithm to operate are simply a number of integer vectors definining the marginals. The elements of each vector must sum to the same value, satisfying the \emph{population constraint} defined earlier.
+
+Given a valid input of \(D\) marginal vectors \(\mathbf{m}_i\), the process then proceeds as follows:
 
 \begin{enumerate*}
 \item
@@ -583,7 +604,7 @@ can be seen in figure 3.
 \subsection{Performance}\label{performance}
 
 Since computers vary widely in performance for many reasons, we present
-normalised performance values.
+normalised performance values. For reference, the hardware used was a fairly recent, fairly standard desktop PC and the performance tests (1000 runs) took seconds to run.
 
 \begin{table}[!t]
 	\centering
@@ -607,24 +628,24 @@ normalised performance values.
 
 \section{Discussion}\label{discussion}
 
-\subsection{Evolution of the
-algorithm.}\label{evolution-of-the-algorithm.}
+\subsection{Evolution of the algorithm.}\label{evolution-of-the-algorithm.}
 
-The motivation behind the development of this method came from the fact
-that IPF, in general, does not generate integral populations in each
-state. If the resulting population is used as a basis for Agent-Based
-Modelling (ABM), then an integerisation process must be applied to the
-synthesised population. Whilst this process preserves the overall
-population, it may not exactly preserve all of the marginal
-distributions. Although the integerisation process may not introduce significant errors, the
-authors considered whether there was an alternative method of synthesis
-that would directly result in an integral population that exactly
-matched the marginal distributions.
+%%%%% moved to intro
+%The motivation behind the development of this method came from the fact
+%that IPF, in general, does not generate integral populations in each
+%state. If the resulting population is used as a basis for Agent-Based
+%Modelling (ABM), then an integerisation process must be applied to the
+%synthesised population. Whilst this process preserves the overall
+%population, it may not exactly preserve all of the marginal
+%distributions. Although the integerisation process may not introduce significant errors, the
+%authors considered whether there was an alternative method of synthesis
+%that would directly result in an integral population that exactly
+%matched the marginal distributions.
 
-We could not find any references in the literature on the use of
-quasirandom sequences for the purpose of population synthesis, and so
-decided to investigate the suitability of sampling algorithms using such
-sequences.
+%We could not find any references in the literature on the use of
+%quasirandom sequences for the purpose of population synthesis, and so
+%decided to investigate the suitability of sampling algorithms using such
+%sequences.
 
 Firstly, it was demonstrated that naive pseudorandom sampling could not
 reliably generate populations matching the marginals. Since successive
