@@ -171,7 +171,7 @@ such as \cite{barthelemy_cran_2016} and \cite{jones_raker:_2016}.
 However, the method has various limitations from the perspective of
 social simulation via agent-based models: IPF
 generates fractional weights instead of integer populations
-(an issue tackled by `integerisation');
+(an issue tackled by integerisation);
 handles empty cells poorly \citep{lovelace_evaluating_2015};
 and requires a representative individual-level `seed' population.
 These issues and the mathematics underlying them are explored
@@ -395,6 +395,7 @@ the population is.
 We measure the degeneracy of populations using a \(\chi^2\) statistic:
 \begin{equation}
 \chi^2 = \sum\limits_{\mathbf{k}}\frac{(\mathbf{T}_\mathbf{k}-p_\mathbf{k}S)^2}{p_\mathbf{k}S}
+\label{eqn:chi2}
 \end{equation}
 from which we can estimate a p-value, which represents the statistical
 significance of the synthetic population.
@@ -583,7 +584,7 @@ values) yields the following rather unsurprising result\footnote{The IPF algorit
 \centering
 \includegraphics[width=0.5\linewidth]{figures/ipf_pvalue_dist}
 \caption{Distribution of p-values of IPF.}
-\label{fig2}
+\label{fig:hist_ifp}
 \end{figure}
 
 
@@ -597,14 +598,18 @@ can be seen in figure 3.
 \includegraphics[width=0.498\linewidth]{figures/iqws_prng_pvalue_dist} 
 \includegraphics[width=0.498\linewidth]{figures/iqws_pvalue_dist} 
 \caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling.}
-\label{fig:unnamed-chunk-4}
+\label{fig:hist_sampling}
 \end{figure}
 
 
 \subsection{Performance}\label{performance}
 
 Since computers vary widely in performance for many reasons, we present
-normalised performance values. For reference, the hardware used was a fairly recent, fairly standard desktop PC and the performance tests (1000 runs) took seconds to run.
+normalised performance values. For reference, the hardware used was a recent, fairly standard desktop PC and the performance test run times (for 1000 tests) were of the order of seconds.
+
+The test timing results are summarised in table \ref{tab2} for a number of theoretical and more realistic test cases.
+
+
 
 \begin{table}[!t]
 	\centering
@@ -623,7 +628,7 @@ normalised performance values. For reference, the hardware used was a fairly rec
 	\bottomrule			
 	\end{tabular}
 	\caption{Relative computation time of the algorithms for \(N\) runs, using the first case as a baseline.}
-	\label{tab:}	
+	\label{tab2}	
 \end{table}
 
 \section{Discussion}\label{discussion}
@@ -700,28 +705,61 @@ discussed below.
 Neither IPF nor QIWS failed to converge on any of the test cases in
 Table 1.
 
-One unexpected observation was that IPF performed least well on the
+One observation was that IPF performed least well on the
 simple tests, generating the lowest mean p-values. Since these are
-``toy'' examples we do not attribute any significance to this, putting
-it down to our choice of random seed.
+``toy'' examples we do not attribute any significance to this as IPF is known not to perform well in such cases (ref?).
 
 \subsubsection{Randomness in Context}\label{randomness-in-context}
 
-To put pseudorandom versus quasirandom sampling into context, consider a
+To put pseudorandom versus quasirandom sampling into context, firstly consider a
 ``random'' number generator that simply always returns zero. If we used
 this as the basis for without-replacement sampling of a marginal
-distribution \(\lbrace10,10,10\rbrace\), we would get a sequence
+distribution \(\lbrace30,30,30\rbrace\), we would get a sequence
 consisting of ten ones, ten twos and ten threes as the samples exhausted
 each bin and moved to the next. In two dimensions, this would result in
 a population matrix
 \[\left( \begin{array}{ccc}
-10 & 0 & 0 \\
-0 & 10 & 0 \\
-0 & 0 & 10 \end{array} \right)\]
+30 & 0 & 0 \\
+0 & 30 & 0 \\
+0 & 0 & 30 \end{array} \right)\]
 suggesting that the marginals are strongly correlated. This particular
 result has a low degeneracy - there are relatively few different ways at
 arriving at this result - and a p-value of effectively zero implying
 that it is vanishingly unlikely that this population resulted by chance.
+
+Simplifying equation \ref{eqn:chi2} for this example, and assuming a variation \(X\) in the 
+populations of each state (from their expected value), we can thus estimate a reasonable approximation for \(\chi^2\) as
+\begin{equation}
+\chi^2 \approx \frac{N^2}{P}X^2
+\label{eqn:chi2approx}
+\end{equation} 
+where \(N\) is the number of states and \(P\) the overall population. (Respectively 9 and 90 in this example.)
+
+Now, repeating the sampling process using a good-quality pseudorandom number generator, 
+given that convergence is inversely proportional to the square root of the number of samples, 
+we would typically expect a population matrix more like
+\[\left( \begin{array}{ccc}
+10\pm3 & 10\pm3 & 10\pm3 \\
+10\pm3 & 10\pm3 & 10\pm3 \\
+10\pm3 & 10\pm3 & 10\pm3 \end{array} \right)\]
+where 3 is the closest integer to \(X\), and \(X=(P/N)/\sqrt{P/N}=\sqrt{P/N}=\sqrt{10}\). Thus, it would not be unreasonable to expect (from equation \ref{eqn:chi2approx}) that 
+\begin{equation}
+\chi^2 \approx \frac{N^2}{P}\frac{P}{N}=N
+\end{equation}
+which in this example is 9, corresponding to a low p-value of around 0.061
+
+Repeating again, this time using a quasirandom sequence and bearing in mind that convergence is now linear, a typical population matrix would be 
+\[\left( \begin{array}{ccc}
+10\pm1 & 10\pm1 & 10\pm1 \\
+10\pm1 & 10\pm1 & 10\pm1 \\
+10\pm1 & 10\pm1 & 10\pm1 \end{array} \right)\]
+This time the variation \(X=(P/N)/(P/N)=1\), and 
+\begin{equation}
+\chi^2 \approx \frac{N^2}{P}
+\end{equation}
+which in this example is 0.9, an order of magnitude lower, and a corresponding p-value of 0.92. If this analysis is correct, then it makes a predictable test: if the ratio \(N/P\) is greater than unity, then populations generated with quasirandom sampling may actually have a higher \(\chi^2\) statistic than those generated using pseudorandom sampling. This corresponds to `sparse' problems where the population is smaller than the number of possible states it can occupy.
+
+We have not yet been able to test the above hypothesis, but believe that this example goes some way to explaining the histograms given in figure \ref{fig:hist_sampling} but do not doubt that a further more in-depth statistical analysis would be beneficial here.
 
 \subsubsection{Degeneracy}\label{degeneracy}
 
