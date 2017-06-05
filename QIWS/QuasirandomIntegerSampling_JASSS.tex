@@ -118,12 +118,16 @@ Established methods for synthesising a population from geographically
 aggregated data are robust and well understood. However, most rely on
 the potentially detrimental process of integerisation if a
 whole-individual population is required, e.g. for use in agent-based
-modelling (ABM). This paper investigates a sampling method to synthesise
-integer populations that is computationally efficient.
-The method, Quasirandom Integer Without-replacement Sampling (QIWS),
-uses quasirandom sequences was found to outperform iterative proportional
-fitting (IPF), integerised
-using pseudorandom numbers. Model experiments demonstrate the method's
+modelling (ABM). This paper investigates a sampling method,
+Quasirandom Integer Without-replacement Sampling (QIWS),
+which was designed to synthesise spatial microdata
+in a computationally efficient way.
+QIWS uses quasirandom sequences to sample populations
+based on known marginal constraints in a process akin to
+iterative proportional fitting (IPF), but requires no
+seed and directly generates integer populations without requiring
+the additional step of integerisation.
+Model experiments demonstrate the method's
 behaviour, highlighting the importance of sampling from
  the marginal distributions \emph{without replacement}.
 We conclude that he method has advantages over IPF 
