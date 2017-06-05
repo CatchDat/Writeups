@@ -707,12 +707,13 @@ Table 1.
 
 One observation was that IPF performed least well on the
 simple tests, generating the lowest mean p-values. Since these are
-``toy'' examples we do not attribute any significance to this as IPF is known not to perform well in such cases (ref?).
+``toy'' examples we do not attribute any significance to this as IPF is known not to perform well in such cases.
 
 \subsubsection{Randomness in Context}\label{randomness-in-context}
 
-To put pseudorandom versus quasirandom sampling into context, firstly consider a
-``random'' number generator that simply always returns zero. If we used
+To put pseudorandom versus quasirandom sampling into context, and to explain at least empirically 
+why we observe different distributions of p-values (table \ref{fig:hist_sampling}), firstly consider a
+`random' number generator that simply always returns zero. If we used
 this as the basis for without-replacement sampling of a marginal
 distribution \(\lbrace30,30,30\rbrace\), we would get a sequence
 consisting of ten ones, ten twos and ten threes as the samples exhausted
@@ -728,9 +729,9 @@ arriving at this result - and a p-value of effectively zero implying
 that it is vanishingly unlikely that this population resulted by chance.
 
 Simplifying equation \ref{eqn:chi2} for this example, and assuming a variation \(X\) in the 
-populations of each state (from their expected value), we can thus estimate a reasonable approximation for \(\chi^2\) as
+populations of each state (from their expected value), we can thus estimate \(\chi^2\) as
 \begin{equation}
-\chi^2 \approx \frac{N^2}{P}X^2
+\chi^2 = \frac{N^2}{P}X^2
 \label{eqn:chi2approx}
 \end{equation} 
 where \(N\) is the number of states and \(P\) the overall population. (Respectively 9 and 90 in this example.)
@@ -860,13 +861,15 @@ the algorithm could equally be applied to an anonymisation process
 whereby individual-level data is first aggregated and then synthesised,
 for example (Nowok, Raab, and Dibben 2016).
 
-We are aware that QIWS is more limited in scope than IPF in that it is
+We are aware that in its current implementation, QIWS is more limited in scope than IPF in that it is
 unable to deal with cases where some marginal data is not explicitly
 specified, instead being expressed in the seed population used to
 initialise the IPF iteration. It may be that with further development of
 the algorithm some of these limitations could be overcome.
 
-As such we envisage QIWS as a technique that complements rather than
+Our analysis of why quasirandom sampling results in more degenerate populations than pseudorandom sampling is not mathematically rigourous, and perhaps more could be done to explain the shapes of the histograms in table \ref{fig:hist_sampling}
+
+As such we envisage QIWS as an evolving technique that complements rather than
 supplants established methods, and publicise the technique as such. The current implementation could perhaps be extended to deal with correlated and/or constrained marginals, and to be able to use data supplied as a smaller seed population as opposed to a fully-populated marginal.
 
 \section{Acknowledgements}\label{acknowledgements}
@@ -962,37 +965,52 @@ Our implementation uses 32-bit unsigned integers, thus allowing for
   \NormalTok{\{}
   \KeywordTok{public}\NormalTok{:}
     \KeywordTok{typedef} \DataTypeTok{uint32_t} \NormalTok{result_type;}
+    \CommentTok{// Construct, given dimension and (optionally) number of initial variates to skip}    
     \KeywordTok{explicit} \NormalTok{Sobol(}\DataTypeTok{uint32_t} \NormalTok{dim, result_type nSkip = }\DecValTok{0u}\NormalTok{);}
+    \CommentTok{// Destruct (deletes implementation)}
     \NormalTok{~Sobol();}
+    \CommentTok{// Return buffer constaining variates for each dimension}
     \DataTypeTok{const} \NormalTok{std::vector<result_type>& buf();}
+    \CommentTok{// Incrementally return a single variate - C++11 standard library compatibility}
     \NormalTok{result_type }\KeywordTok{operator}\NormalTok{()();}
+    \CommentTok{// Skip variates}    
     \DataTypeTok{void} \NormalTok{skip(result_type n);}
+    \CommentTok{// Minimum possible variate value - C++11 standard library compatibility}
     \NormalTok{result_type min() }\DataTypeTok{const}\NormalTok{;}
+    \CommentTok{// Maximum possible variate value - C++11 standard library compatibility}
     \NormalTok{result_type max() }\DataTypeTok{const}\NormalTok{;}
   \KeywordTok{private}\NormalTok{:}
+    \CommentTok{// Pointer to actual implementation}    
     \NormalTok{SobolData* m_s;}
+    \CommentTok{// Dimensionality of sequence}    
     \DataTypeTok{uint32_t} \NormalTok{m_dim;}
-    \NormalTok{std::vector<result_type> m_buf;}
+    \CommentTok{// Internal storage}        
+    \NormalTok{std::vector<result_type> m_buf;} 
+    \CommentTok{// Current position within internal storage for operator()}            
     \DataTypeTok{uint32_t} \NormalTok{m_pos;}
   \NormalTok{\};}
 
-  \KeywordTok{template}\NormalTok{<}\KeywordTok{typename} \NormalTok{I> }\CommentTok{// I must be an integral type}
+  \KeywordTok{template}\NormalTok{<}\KeywordTok{typename} \NormalTok{I> }
   \KeywordTok{class} \NormalTok{discrete_distribution_without_replacement}
   \NormalTok{\{}
   \KeywordTok{public}\NormalTok{:}
     \KeywordTok{typedef} \NormalTok{I result_type;}
-    \CommentTok{// enforce integral types only}
+    \CommentTok{// Enforce instantiation for integral types only}
     \KeywordTok{static_assert}\NormalTok{(std::is_integral<I>::value, }
       \StringTok{"discrete_distribution_without_replacement: only integral types supported"}\NormalTok{);}
+    \CommentTok{// Construct from iterators to the initial marginal frequencies}
     \NormalTok{discrete_distribution_without_replacement(}\KeywordTok{typename} \NormalTok{std::vector<I>::const_iterator b, }
                                               \KeywordTok{typename} \NormalTok{std::vector<I>::const_iterator e);}
-    \CommentTok{// std::distribution compatibility}
-    \KeywordTok{template}\NormalTok{<}\KeywordTok{typename} \NormalTok{R>}
-    \NormalTok{result_type }\KeywordTok{operator}\NormalTok{()(R& rng);}
+    \CommentTok{// C++11 std::distribution compatibility}
+    \KeywordTok{template}\NormalTok{<}\KeywordTok{typename} \NormalTok{R>} \NormalTok{result_type }\KeywordTok{operator}\NormalTok{()(R& rng);}
+    \CommentTok{// Directly return a position from a random variate}    
     \NormalTok{result_type }\KeywordTok{operator}\NormalTok{()(result_type r);}
+    \CommentTok{// Check for exhausted distribution}        
     \DataTypeTok{bool} \NormalTok{empty() }\DataTypeTok{const}\NormalTok{;}
   \KeywordTok{private}\NormalTok{:}
+    \CommentTok{// Internal storage of distribution}          
     \NormalTok{std::vector<I> m_freq;}
+    \CommentTok{// Running sum of remaining states}        
     \NormalTok{I m_sum;}
   \NormalTok{\};}
 \end{Highlighting}
