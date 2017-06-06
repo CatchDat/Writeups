@@ -250,14 +250,21 @@ at a rate of \(\approx1/N\) (actually \((ln N)^D/N\) (\cite{press_numerical_noda
 compared to \(\approx1/\sqrt N\) for a pseudorandom generator, and thus
 require far fewer samples to achieve the same level of accuracy. This makes quasirandom sampling particularly suitable for Monte-Carlo integration of high-dimensional functions: far fewer samples are required to obtain the same level of accuracy that would be achieved using pseudorandom sampling. 
 
+\begin{figure}[!t]
+\includegraphics[width=0.5\linewidth]{figures/hist_pseudo} 
+\includegraphics[width=0.5\linewidth]{figures/hist_quasi} 
+\caption{Sampled uniform distributions -  pseudorandom (left) and quasirandom (right).}
+\label{fig:hist_pq_1d}
+\end{figure}
+
+Figure 2 illustrates the superior convergence of quasirandom numbers. The histograms contain 10000 samples in 100 bins, and clearly the quasirandom sequence is far closer to the true distrubution. Furthermore, consider the following simple example: we wish to calculate the expected value of the sum of 2 fair and independent dice, sampling 100 times. Using pseudorandom sampling, with a standard error proportional to the square root of the number of samples, we would expect to get an estimate of \(7 \pm 10\%\). However, using quasirandom sampling, since the standard error
+\footnote{Strictly speaking, it is not mathematically valid to attribute a standard error value to results generated from a quasirandom sequence as there is no randomness. However the value is useful for qualitative comparison.} 
+  is inversely proportional to the number of samples, the estimate will be \(7 \pm 1\%\). To achieve the same level of accuracy with peudorandom numbers would require 10000 samples.
+
 Quasirandom sequences are not seeded like pseudorandom generators. To
 avoid repetition, and for better degeneracy, it is recommended to
 discard a number of variates on initialisation (\cite{joe_remark_2003}), and
 on subsequent sampling continue the sequence from its previous position.
-
-Consider the following simple example: we wish to calculate the expected value of the sum of 2 fair and independent dice, sampling 100 times. Using pseudorandom sampling, with a standard error proportional to the square root of the number of samples, we would expect to get an estimate of \(7 \pm 10\%\). However, using quasirandom sampling, since the standard error
-\footnote{Strictly speaking, it is not mathematically valid to attribute a standard error value to results generated from a quasirandom sequence as there is no randomness. However the value is useful for qualitative comparison.} 
-  is inversely proportional to the number of samples, the estimate will be \(7 \pm 1\%\). To achieve the same accuracy with peudorandom numbers would require 10000 samples.
 
 When using quasirandom sequences it is extremely important to ensure that every sample is used. Discarding a subset of the samples will potentially destroy the statistical properties of the entire sequence. For this reason quasirandom sequences must not be combined with rejection sampling methods, which are often used to convert the 'raw' uniformly-distributed variates into e.g. normally-distributed ones.
 
@@ -310,7 +317,7 @@ where \(g_i\) represents the difference between the unconstrained frequency and 
 \begin{equation}
 \sum\limits_i{f_i} = P 
 \end{equation}
-matching the population, and that \(g_i\) is minimised. There may be multiple optimal solutions. 
+matching the population, and that \(g_i\) is minimised. In many cases there may be multiple optimal solutions. 
 
 \subsection{Problem Statement}\label{problem-statement}
 
@@ -715,7 +722,7 @@ simple tests, generating the lowest mean p-values. Since these are
 
 \subsubsection{Randomness in Context}\label{randomness-in-context}
 
-To put pseudorandom versus quasirandom sampling into context, and to explain at least empirically 
+To put pseudorandom versus quasirandom sampling into context, and to explain at least intuitively\footnote{We do not present this as a mathmatically rigorous analysis.} 
 why we observe different distributions of p-values (table \ref{fig:hist_sampling}), firstly consider a
 `random' number generator that simply always returns zero. If we used
 this as the basis for without-replacement sampling of a marginal
@@ -730,7 +737,7 @@ a population matrix
 suggesting that the marginals are strongly correlated. This particular
 result has a low degeneracy - there are relatively few different ways at
 arriving at this result - and a p-value of effectively zero implying
-that it is vanishingly unlikely that this population resulted by chance.
+that it is vanishingly unlikely that this population resulted by chance from independent marginal distributions.
 
 Simplifying equation \ref{eqn:chi2} for this example, and assuming a variation \(X\) in the 
 populations of each state (from their expected value), we can thus estimate \(\chi^2\) as
@@ -758,39 +765,35 @@ Repeating again, this time using a quasirandom sequence and bearing in mind that
 10\pm1 & 10\pm1 & 10\pm1 \\
 10\pm1 & 10\pm1 & 10\pm1 \\
 10\pm1 & 10\pm1 & 10\pm1 \end{array} \right)\]
-This time the variation \(X=(P/N)/(P/N)=1\), and 
+This time the variation \(X=(P/N)/(P/N)=1\), and thus
 \begin{equation}
 \chi^2 \approx \frac{N^2}{P}
 \end{equation}
-which in this example is 0.9, an order of magnitude lower, and a corresponding p-value of 0.92. If this analysis is correct, then it makes a predictable test: if the ratio \(N/P\) is greater than unity, then populations generated with quasirandom sampling may actually have a higher \(\chi^2\) statistic than those generated using pseudorandom sampling. This corresponds to `sparse' problems where the population is smaller than the number of possible states it can occupy.
+which in this example is 0.9, an order of magnitude lower, and a corresponding p-value of 0.92.
 
-We have not yet been able to test the above hypothesis, but believe that this example goes some way to explaining the histograms given in figure \ref{fig:hist_sampling} but do not doubt that a further more in-depth statistical analysis would be beneficial here.
+This result, whilst not mathematically rigorous - the analysis is complicated by the use of without-replacement sampling - is in line with the sampled uniform distributions shown in table \ref{fig:hist_pq_1d}. We believe that this example goes some way to explaining the histograms given in figure \ref{fig:hist_sampling} but do not doubt that a further more in-depth statistical analysis would be beneficial here.
 
 \subsubsection{Degeneracy}\label{degeneracy}
 
 The \(\chi^2\) value resulting from IPF is likely to be slightly lower
-than QIWS due to the fact the former numbers are not generally integral.
+than QIWS simply due to the fact the former numbers are not generally integral.
 Figure 2 demonstrates that IPF almost always results in a p-value of 1.
 This is entirely expected due to the fact that the IPF algorithm seeks a 
 maximum-entropy solution.
 
-QIWS does not achieve such high p-values in general, as seen in figure
-3, and there is a marked difference in the distribution of p-values
+QIWS, being in nature a sampling algorithm, does not always achieve such high p-values in general, 
+as seen in figure 3, and there is a marked difference in the distribution of p-values
 depending on the type of underlying random generator used. It can be
 seen clearly that quasirandom sampling generally yields more degenerate
 populations, and is much closer to IPF in this respect.
 
-It should be borne in mind that one of the reasons that QIWS cannot
-achieve the high p-value levels as consistently as IPF is due to the
-simple fact that the population is integral, and this will generally
-result in a higher \(\chi^2\) statistic. We would caution users,
-however, to check the resulting p-value against some suitable threshold
+Whilst this may be a drawback for certain applications, we also envisage that it could be advantageous - since multiple populations can be generated from the same marginal data with different levels of degeneracy. In spite of this we would caution users to check the resulting p-value against some suitable threshold
 and resample if necessary.
 
 \subsection{Performance}\label{performance-1}
 
-QIWS performance is far superior to IPF. One reason for this is that
-QIWS is not iterative, but the following points should be noted:
+QIWS performance in terms of computational efficiency is far superior to IPF. One reason for this is that
+QIWS is not iterative, but the following points should also be noted:
 
 \begin{itemize*}
 \item
@@ -823,6 +826,10 @@ that it always generates integer populations. Thus integerisation, which
 may alter the population in such a way that the marginals are no longer
 met, is not required.
 
+Other approaches to generating integer populations have been used, for example in the doubly-constrained model described in Lenormand \ref{}, they use a fractional population generated with IPF as a joint distribution from which to randomly sample individuals. Our method differs significantly from this approach in that it directly samples the marginal distributions to generate an integer population, and uses both quasirandom and without-replacement sampling techniques to achieve this.
+
+With given marginals and seed population, IPF will always result in the same overall population. QIWS differs in this respect in that the same inputs can be used to generate multiple different populations, all of which meet the marginal constraints. These could potentially used in an ensemble simulation to test the sensitivity of a model to the input population.
+
 QIWS may potentially be of use in the process of anonymising
 populations. It is outside the scope of this work, but since full
 marginal data will likely be available, its use in this context may be
@@ -845,7 +852,7 @@ The QIWS algorithm was thus designed with this type of synthesis in
 mind, where all marginal data is fully specified, and in this context it
 fulfils the requirements.
 
-If there are specific requirements for a degenerate population,
+If there are specific requirements for a sufficiently degenerate population,
 statistical data is provided about the generated population that will
 guide the user in determining the suitability of the generated
 population.
@@ -871,9 +878,9 @@ specified, instead being expressed in the seed population used to
 initialise the IPF iteration. It may be that with further development of
 the algorithm some of these limitations could be overcome.
 
-Our analysis of why quasirandom sampling results in more degenerate populations than pseudorandom sampling is not mathematically rigourous, and perhaps more could be done to explain the shapes of the histograms in table \ref{fig:hist_sampling}
+Our analysis of why quasirandom sampling results in more degenerate populations than pseudorandom sampling is not mathematically rigourous, and perhaps more could be done to explain the shapes of the histograms in table \ref{fig:hist_sampling}.
 
-As such we envisage QIWS as an evolving technique that complements rather than
+We envisage QIWS as an evolving technique that complements rather than
 supplants established methods, and publicise the technique as such. The current implementation could perhaps be extended to deal with correlated and/or constrained marginals, and to be able to use data supplied as a smaller seed population as opposed to a fully-populated marginal.
 
 \section{Acknowledgements}\label{acknowledgements}
