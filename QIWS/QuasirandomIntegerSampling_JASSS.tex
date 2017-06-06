@@ -246,7 +246,7 @@ between variates often has a much longer period, allowing for very large
 samples to be taken.
 
 For applications such as numerical integration, Sobol sequences converge
-at a rate of \(\approx1/N\) (actually \((ln N)^D/N\) (\cite{press_numerical_nodate})
+at a rate of \(\approx1/N\) (more accurately \((ln N)^D/N\), \cite{press_numerical_nodate})
 compared to \(\approx1/\sqrt N\) for a pseudorandom generator, and thus
 require far fewer samples to achieve the same level of accuracy. This makes quasirandom sampling particularly suitable for Monte-Carlo integration of high-dimensional functions: far fewer samples are required to obtain the same level of accuracy that would be achieved using pseudorandom sampling. 
 
@@ -263,7 +263,7 @@ Figure 2 illustrates the superior convergence of quasirandom numbers. The histog
 
 Quasirandom sequences are not seeded like pseudorandom generators. To
 avoid repetition, and for better degeneracy, it is recommended to
-discard a number of variates on initialisation (\cite{joe_remark_2003}), and
+discard a number of variates on initialisation \citep{joe_remark_2003}, and
 on subsequent sampling continue the sequence from its previous position.
 
 When using quasirandom sequences it is extremely important to ensure that every sample is used. Discarding a subset of the samples will potentially destroy the statistical properties of the entire sequence. For this reason quasirandom sequences must not be combined with rejection sampling methods, which are often used to convert the 'raw' uniformly-distributed variates into e.g. normally-distributed ones.
@@ -449,9 +449,9 @@ Given a valid input of \(D\) marginal vectors \(\mathbf{m}_i\), the process then
 \subsection{The Implementation}\label{the-implementation}
 
 The algorithm is implemented in an \texttt{R} package called
-\texttt{humanleague}. A description of the technical implementation details can be found in the Appendix. The package is open source under a GPL licence and available at \url{https://github.com/CatchDat/humanleague}. It has been submitted for inclusion in the official CRAN repository of \texttt{R} packages.
+\texttt{humanleague}. A description of the technical implementation details can be found in the Appendix. The package is open source under a GPL licence and available at \url{https://github.com/CatchDat/humanleague}.
 
-In order to use this package, the input data requirements are a number of discrete integer marginal distributions, i.e. counts of population in each state of some category. If any marginal data is expressed as probabilities, a function is provided to convert these to integer frequencies.
+In order to use the microsynthesis function, the input data requirements are a number of discrete integer marginal distributions, i.e. counts of population in each state of some category. If any marginal data is expressed as probabilities, a function is provided to convert these to integer frequencies. For reference, we also provide a function for direct generation of Sobol sequences.
 
 \subsection{Usage Examples}\label{usage-examples}
 
@@ -826,7 +826,7 @@ that it always generates integer populations. Thus integerisation, which
 may alter the population in such a way that the marginals are no longer
 met, is not required.
 
-Other approaches to generating integer populations have been used, for example in the doubly-constrained model described in Lenormand \ref{}, they use a fractional population generated with IPF as a joint distribution from which to randomly sample individuals. Our method differs significantly from this approach in that it directly samples the marginal distributions to generate an integer population, and uses both quasirandom and without-replacement sampling techniques to achieve this.
+Other approaches to generating integer populations have been used, for example in the doubly-constrained model described in \cite{lenormand_systematic_2016}, they use a fractional population generated with IPF as a joint distribution from which to randomly sample individuals. Our method differs significantly from this approach in that it directly samples the marginal distributions to generate an integer population, and uses both quasirandom and without-replacement sampling techniques to achieve this.
 
 With given marginals and seed population, IPF will always result in the same overall population. QIWS differs in this respect in that the same inputs can be used to generate multiple different populations, all of which meet the marginal constraints. These could potentially used in an ensemble simulation to test the sensitivity of a model to the input population.
 
