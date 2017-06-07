@@ -392,31 +392,33 @@ unique solution. Hence there is a need to resort to iterative or
 optimisation-type solutions, such as IPF, simulated annealing,
 likelihood estimation, chi-squared fitting, or least-squares fitting.
 
-\subsection{Degeneracy and Statistical
+\subsection{Degeneracy, Entropy and Statistical
 Likelihood}\label{degeneracy-and-statistical-likelihood}
 
-In this work we interpret degeneracy as the number of possible different
+In this work we use the term degeneracy to mean the number of possible different
 ways a given overall population \(P\) can be sampled into a \(D\)-dimensional table
 \(\mathbf{T}\) containing \(S\) possible states \(\mathbf{k}\), with
 occupancy probability \(p_\mathbf{k}\), the system having \(d\) degrees
-of freedom. Making the assumption that marginals are uncorrelated, then the
-higher the degeneracy of the population, the more statistically likely
-the population is.
+of freedom. In this sense, the term degeneracy is closely related to (information-theoretic) entropy:
+a high-degeneracy state can be considered a high-entropy state, and a low-degeneracy state a low-entropy one. 
 
-We measure the degeneracy of populations using a \(\chi^2\) statistic:
+Assuming that the marginal distributions are uncorrelated, then the
+higher the degeneracy/entropy of the population, the more statistically likely
+the population is. We measure the statistical likelihood of populations using a \(\chi^2\) statistic:
 \begin{equation}
-\chi^2 = \sum\limits_{\mathbf{k}}\frac{(\mathbf{T}_\mathbf{k}-p_\mathbf{k}S)^2}{p_\mathbf{k}S}
+\chi^2 = \sum\limits_{\mathbf{k}}\frac{(\mathbf{T}_\mathbf{k}-p_\mathbf{k}P)^2}{p_\mathbf{k}P}
 \label{eqn:chi2}
 \end{equation}
-from which we can estimate a p-value, which represents the statistical
+and from this which we can estimate a p-value, which represents the statistical
 significance of the synthetic population.
 \begin{equation}
 \text{p-value}=1-F(d/2,\chi^2) 
 \end{equation}
 where \(F\) is the cumulative
 \(\chi^2\) density function and \(d\) the degrees of freedom of the
-system. The aim in this context is to generate populations with a high
-p-value, i.e.~a low statistical significance and a high-degeneracy.
+system. 
+
+The purpose in this context is to use these metrics to demonstrate the ability of the sampling method described here to generate populations with a high p-value, i.e. high degeneracy, high entropy, high likelihood and low statistical significance.
 
 \section{The Algorithm}\label{the-algorithm}
 
@@ -616,7 +618,7 @@ can be seen in figure 3.
 \subsection{Performance}\label{performance}
 
 Since computers vary widely in performance for many reasons, we present
-normalised performance values. For reference, the hardware used was a recent, fairly standard desktop PC and the performance test run times (for 1000 tests) were of the order of seconds.
+performance values normalised to the execution time of QIWS for the first test case. For reference, the hardware used was a recent, fairly standard desktop PC and the performance test run times (for 1000 tests) were of the order of seconds.
 
 The test timing results are summarised in table \ref{tab2} for a number of theoretical and more realistic test cases.
 
@@ -705,7 +707,7 @@ entirely. In fact, this method is guaranteed to work regardless of the
 choice of underlying random number generation.
 
 The next phase of the work was to analyse generated populations
-statistically, focussing on the degeneracy of the resulting populations in order to determine whether quasirandom sampling offers any additional benefit.
+statistically, focussing on the statistical likelihood of the resulting populations in order to determine whether quasirandom sampling offers any additional benefit.
 The results from this work, presented in the previous section, are
 discussed below.
 
@@ -773,7 +775,7 @@ which in this example is 0.9, an order of magnitude lower, and a corresponding p
 
 This result, whilst not mathematically rigorous - the analysis is complicated by the use of without-replacement sampling - is in line with the sampled uniform distributions shown in table \ref{fig:hist_pq_1d}. We believe that this example goes some way to explaining the histograms given in figure \ref{fig:hist_sampling} but do not doubt that a further more in-depth statistical analysis would be beneficial here.
 
-\subsubsection{Degeneracy}\label{degeneracy}
+\subsubsection{Statistical Likelihood}\label{degeneracy}
 
 The \(\chi^2\) value resulting from IPF is likely to be slightly lower
 than QIWS simply due to the fact the former numbers are not generally integral.
@@ -784,11 +786,10 @@ maximum-entropy solution.
 QIWS, being in nature a sampling algorithm, does not always achieve such high p-values in general, 
 as seen in figure 3, and there is a marked difference in the distribution of p-values
 depending on the type of underlying random generator used. It can be
-seen clearly that quasirandom sampling generally yields more degenerate
+seen clearly that quasirandom sampling generally yields more statistically likely (and thus more degenerate)
 populations, and is much closer to IPF in this respect.
 
-Whilst this may be a drawback for certain applications, we also envisage that it could be advantageous - since multiple populations can be generated from the same marginal data with different levels of degeneracy. In spite of this we would caution users to check the resulting p-value against some suitable threshold
-and resample if necessary.
+Whilst this may be a drawback for certain applications, we also envisage that it could be advantageous - since multiple populations can be generated from the same marginal data with different levels of likelihood/degeneracy. In spite of this we would caution users to check the resulting p-value against some suitable threshold and resample if necessary.
 
 \subsection{Performance}\label{performance-1}
 
@@ -852,10 +853,8 @@ The QIWS algorithm was thus designed with this type of synthesis in
 mind, where all marginal data is fully specified, and in this context it
 fulfils the requirements.
 
-If there are specific requirements for a sufficiently degenerate population,
-statistical data is provided about the generated population that will
-guide the user in determining the suitability of the generated
-population.
+The algorithm computes the statistical likelihood/significance metrics in 
+order to guide the user in determining the suitability of the generated population.
 
 In situations where integral populations are desirable QIWS presents an
 advantage over established techniques by eliminating the need for
@@ -878,7 +877,7 @@ specified, instead being expressed in the seed population used to
 initialise the IPF iteration. It may be that with further development of
 the algorithm some of these limitations could be overcome.
 
-Our analysis of why quasirandom sampling results in more degenerate populations than pseudorandom sampling is not mathematically rigourous, and perhaps more could be done to explain the shapes of the histograms in table \ref{fig:hist_sampling}.
+Our analysis of why quasirandom sampling results in more statistically likely populations than pseudorandom sampling is not mathematically rigourous, and perhaps more could be done to explain the shapes of the histograms in table \ref{fig:hist_sampling}.
 
 We envisage QIWS as an evolving technique that complements rather than
 supplants established methods, and publicise the technique as such. The current implementation could perhaps be extended to deal with correlated and/or constrained marginals, and to be able to use data supplied as a smaller seed population as opposed to a fully-populated marginal.
@@ -935,9 +934,9 @@ funding for this work.
 The algorithm is implemented in an \texttt{R} package called
 \texttt{humanleague}, written in \texttt{C++11} and \texttt{C} and
 exposed to \texttt{R} via \texttt{Rcpp}. We used open source
-implementations of the Sobol sequence generator (\cite{johnson_stevengj/nlopt:_nodate}) and, in order to 
+implementations of the Sobol sequence generator \citep{johnson_stevengj/nlopt:_nodate} and, in order to 
 compute the p-value, the
-incomplete gamma function (\cite{burkardt_asa032_2008})
+incomplete gamma function \citep{burkardt_asa032_2008}.
 
 One of the many useful features introduced in \texttt{C++11} was a
 standard random number framework, which splits underlying (uniform) generators
