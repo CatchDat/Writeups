@@ -182,7 +182,7 @@ These issues and the mathematics underlying them are explored
 in \cite{zaloznik_iterative_2011}.
 
 Integerisation is only a partial solution to the issue of fractional weights.
-Algorithms for integerisation such `truncate replicate sample'
+Algorithms for integerisation such as `truncate replicate sample'
 maintain the correct overall population,
 but the adjustments can create a mismatch between the with the original
 and simulated marginal data \citep{lovelace_truncate_2013}.
@@ -207,11 +207,11 @@ sequences.
 
 Working exclusively in the integer domain requires that marginal frequencies are integral. Often, these are expressed as probabilities rather than frequencies. We propose that integerising each marginal at this stage is preferable to integerising the final population. Mathematically, integerisation in a single dimension is straightforward and a demonstrably optimal (i.e. closest) solution can always be reached.    
 
-We show that by using without-replacement sampling we can guarantee that the randomly sampled population will exactly match the marginal data. Secondly we compare the statistical properties of populations generated with IPF, and sampled using pseudo- and quasirandom numbers  showing that the latter sampling technique provides better degeneracy, closer to that if IPF.
+We show that by using without-replacement sampling we can guarantee that the randomly sampled population will exactly match the marginal data. Secondly we compare the statistical properties of populations generated with IPF, and sampled using pseudo- and quasirandom numbers  showing that the latter sampling technique provides better degeneracy, closer to that of IPF.
 
 \section{Theory}\label{theory}
 
-In this section we first quantitatively describe the core concepts that comprise the sampling technique we describe. We then formally states the problem that the technique is used to solve, and finally define the statistical metrics that we use for assessing and comparing the results.  
+In this section we first quantitatively describe the core concepts that comprise the sampling technique we describe. We then formally state the problem that the technique is used to solve, and finally define the statistical metrics that we use for assessing and comparing the results.  
 
 \subsection{Quasirandom Numbers}\label{quasirandom-numbers}
 Quasirandom numbers, often referred to as low discrepancy sequences, are
@@ -257,7 +257,7 @@ require far fewer samples to achieve the same level of accuracy. This makes quas
 \label{fig:hist_pq_1d}
 \end{figure}
 
-Figure 2 illustrates the superior convergence of quasirandom numbers. The histograms contain 10000 samples in 100 bins, and clearly the quasirandom sequence is far closer to the true distrubution. Furthermore, consider the following simple example: we wish to calculate the expected value of the sum of 2 fair and independent dice, sampling 100 times. Using pseudorandom sampling, with a standard error proportional to the square root of the number of samples, we would expect to get an estimate of \(7 \pm 10\%\). However, using quasirandom sampling, since the standard error
+Figure 2 illustrates the superior convergence of quasirandom numbers. The histograms contain 10000 samples in 100 bins, and clearly the quasirandom sequence is far closer to the true distribution. Furthermore, consider the following simple example: we wish to calculate the expected value of the sum of 2 fair and independent dice, sampling 100 times. Using pseudorandom sampling, with a standard error proportional to the square root of the number of samples, we would expect to get an estimate of \(7 \pm 10\%\). However, using quasirandom sampling, since the standard error
 \footnote{Strictly speaking, it is not mathematically valid to attribute a standard error value to results generated from a quasirandom sequence as there is no randomness. However the value is useful for qualitative comparison.} 
   is inversely proportional to the number of samples, the estimate will be \(7 \pm 1\%\). To achieve the same level of accuracy with peudorandom numbers would require 10000 samples.
 
@@ -430,7 +430,7 @@ Given a valid input of \(D\) marginal vectors \(\mathbf{m}_i\), the process then
 
 \begin{enumerate*}
 \item
-  Create an \(D\)-dimensional discrete without-replacement distribution
+  Create a \(D\)-dimensional discrete without-replacement distribution
   using the marginals \(\mathbf{m}_i\)
 \item
   Sample \(P\) random variates from this distribution to create a
@@ -699,7 +699,7 @@ algorithm, and in fact further testing did reveal cases where the
 algorithm the number of resamples required was unacceptably large, even
 exhausting the period of the generator.
 
-This flaw drove the authors to come up with an alternative formulation
+This flaw drove the authors to develop an alternative formulation
 of the algorithm, and it transpired that without-replacement sampling
 would guarantee that the population matched all marginals by design (as
 explained in section \ref{sampling-without-replacement}), eliminating the need for the correction step
@@ -885,7 +885,7 @@ supplants established methods, and publicise the technique as such. The current 
 \section{Acknowledgements}\label{acknowledgements}
 
 The authors acknowledge Innovate UK's Catch! project for providing the
-funding for this work.
+funding for this work. We are grateful to two anonymous reviewers for helpful comments on an earlier draft of this manuscript
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
