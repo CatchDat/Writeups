@@ -118,9 +118,23 @@ Established methods for synthesising a population from geographically
 aggregated data are robust and well understood. However, most rely on
 the potentially detrimental process of integerisation if a
 whole-individual population is required, e.g. for use in agent-based
-modelling (ABM). This paper describes and investigates the use of quasirandom sequences to sample 
-populations from known marginal constraints whilst preserving those marginal distributions.
-We call this technique Quasirandom Integer Without-replacement Sampling (QIWS) and show that the statistical properties of quasirandomly sampled populations to be superior to those of pseudorandomly sampled ones in that they tend to yield entropies much closer to populations generated using the entropy-maximising iterative proportional fitting (IPF) algorithm. The implementation is extremely efficient, easily outperforming common IPF implementations. It is freely available as an open source \texttt{R} package called \texttt{humanleague}. Finally, we outline how the current limitations of the implementation can be overcome, providing a direction for future work.
+modelling (ABM). This paper investigates a sampling method,
+Quasirandom Integer Without-replacement Sampling (QIWS),
+which was designed to synthesise spatial microdata
+in a computationally efficient way.
+QIWS uses quasirandom sequences to sample populations
+based on known marginal constraints in a process akin to
+iterative proportional fitting (IPF), but requires no
+seed and directly generates integer populations without requiring
+the additional step of integerisation.
+Model experiments demonstrate the method's
+behaviour, highlighting the importance of sampling from
+ the marginal distributions \emph{without replacement}.
+We conclude that he method has advantages over IPF 
+for the generation of spatial microdata for ABM when constraint
+variables have equal total populations (providing a direction for future work).
+The method has been implemented in open source software and is available via
+the R package \texttt{humanleague}.
 \end{abstract}
 
 \begin{keywords}
@@ -161,16 +175,17 @@ such as \cite{barthelemy_cran_2016} and \cite{jones_raker:_2016}.
 However, the method has various limitations from the perspective of
 social simulation via agent-based models: IPF
 generates fractional weights instead of integer populations
-(an issue that can be tackled by integerisation);
+(an issue tackled by integerisation);
 handles empty cells poorly \citep{lovelace_evaluating_2015};
 and requires a representative individual-level `seed' population.
 These issues and the mathematics underlying them are explored
 in \cite{zaloznik_iterative_2011}.
 
-Integerisation is only a partial solution to the issue of fractional weights. Whilst
-algorithms for integerisation such as `truncate replicate sample'
-maintain the correct overall population, the adjustments can create a mismatch between the original
-and simulated marginal data \citep{lovelace_truncate_2013}. Using IPF-generated probabilities as a basis for a sampling algorithm is an alternative solution but again care must be taken to: correcly match the marginal distributions; and generate a realistic population.   
+Integerisation is only a partial solution to the issue of fractional weights.
+Algorithms for integerisation such `truncate replicate sample'
+maintain the correct overall population,
+but the adjustments can create a mismatch between the with the original
+and simulated marginal data \citep{lovelace_truncate_2013}.
 
 In this paper we investigate sampling techniques where a synthetic population is built exclusively in the integer domain. The research reported in this paper forms part of, and is partly motivated by, a larger body of work in which there is a requirement to generate individual simulated agents for an entire city. In the larger project, the ultimate goal is to impute journey patterns to each member of the simulated population using app-based mobility traces in order to generate travel demand schedules for an entire urban population in pseudo-real-time.
 
@@ -192,11 +207,11 @@ sequences.
 
 Working exclusively in the integer domain requires that marginal frequencies are integral. Often, these are expressed as probabilities rather than frequencies. We propose that integerising each marginal at this stage is preferable to integerising the final population. Mathematically, integerisation in a single dimension is straightforward and a demonstrably optimal (i.e. closest) solution can always be reached.    
 
-We show that by using without-replacement sampling we can guarantee that the randomly sampled population will exactly match the marginal data. Secondly we compare the statistical properties of populations generated with IPF, and sampled using pseudo- and quasirandom numbers  showing that the latter sampling technique provides better degeneracy, closer to that of IPF.
+We show that by using without-replacement sampling we can guarantee that the randomly sampled population will exactly match the marginal data. Secondly we compare the statistical properties of populations generated with IPF, and sampled using pseudo- and quasirandom numbers  showing that the latter sampling technique provides better degeneracy, closer to that if IPF.
 
 \section{Theory}\label{theory}
 
-In this section we first quantitatively describe the core concepts that comprise the sampling technique we describe. We then formally state the problem that the technique is used to solve, and finally define the statistical metrics that we use for assessing and comparing the results.  
+In this section we first quantitatively describe the core concepts that comprise the sampling technique we describe. We then formally states the problem that the technique is used to solve, and finally define the statistical metrics that we use for assessing and comparing the results.  
 
 \subsection{Quasirandom Numbers}\label{quasirandom-numbers}
 Quasirandom numbers, often referred to as low discrepancy sequences, are
@@ -231,25 +246,18 @@ between variates often has a much longer period, allowing for very large
 samples to be taken.
 
 For applications such as numerical integration, Sobol sequences converge
-at a rate of \(\approx1/N\) (more accurately \((ln N)^D/N\), \cite{press_numerical_nodate})
+at a rate of \(\approx1/N\) (actually \((ln N)^D/N\) (\cite{press_numerical_nodate})
 compared to \(\approx1/\sqrt N\) for a pseudorandom generator, and thus
 require far fewer samples to achieve the same level of accuracy. This makes quasirandom sampling particularly suitable for Monte-Carlo integration of high-dimensional functions: far fewer samples are required to obtain the same level of accuracy that would be achieved using pseudorandom sampling. 
 
-\begin{figure}[!t]
-\includegraphics[width=0.5\linewidth]{figures/hist_pseudo} 
-\includegraphics[width=0.5\linewidth]{figures/hist_quasi} 
-\caption{Sampled uniform distributions -  pseudorandom (left) and quasirandom (right).}
-\label{fig:hist_pq_1d}
-\end{figure}
-
-Figure 2 illustrates the superior convergence of quasirandom numbers. The histograms contain 10000 samples in 100 bins, and clearly the quasirandom sequence is far closer to the true distribution. Furthermore, consider the following simple example: we wish to calculate the expected value of the sum of 2 fair and independent dice, sampling 100 times. Using pseudorandom sampling, with a standard error proportional to the square root of the number of samples, we would expect to get an estimate of \(7 \pm 10\%\). However, using quasirandom sampling, since the standard error
-\footnote{Strictly speaking, it is not mathematically valid to attribute a standard error value to results generated from a quasirandom sequence as there is no randomness. However the value is useful for qualitative comparison.} 
-  is inversely proportional to the number of samples, the estimate will be \(7 \pm 1\%\). To achieve the same level of accuracy with peudorandom numbers would require 10000 samples.
-
 Quasirandom sequences are not seeded like pseudorandom generators. To
 avoid repetition, and for better degeneracy, it is recommended to
-discard a number of variates on initialisation \citep{joe_remark_2003}, and
+discard a number of variates on initialisation (\cite{joe_remark_2003}), and
 on subsequent sampling continue the sequence from its previous position.
+
+Consider the following simple example: we wish to calculate the expected value of the sum of 2 fair and independent dice, sampling 100 times. Using pseudorandom sampling, with a standard error proportional to the square root of the number of samples, we would expect to get an estimate of \(7 \pm 10\%\). However, using quasirandom sampling, since the standard error
+\footnote{Strictly speaking, it is not mathematically valid to attribute a standard error value to results generated from a quasirandom sequence as there is no randomness. However the value is useful for qualitative comparison.} 
+  is inversely proportional to the number of samples, the estimate will be \(7 \pm 1\%\). To achieve the same accuracy with peudorandom numbers would require 10000 samples.
 
 When using quasirandom sequences it is extremely important to ensure that every sample is used. Discarding a subset of the samples will potentially destroy the statistical properties of the entire sequence. For this reason quasirandom sequences must not be combined with rejection sampling methods, which are often used to convert the 'raw' uniformly-distributed variates into e.g. normally-distributed ones.
 
@@ -302,7 +310,7 @@ where \(g_i\) represents the difference between the unconstrained frequency and 
 \begin{equation}
 \sum\limits_i{f_i} = P 
 \end{equation}
-matching the population, and that \(g_i\) is minimised. In many cases there may be multiple optimal solutions. 
+matching the population, and that \(g_i\) is minimised. There may be multiple optimal solutions. 
 
 \subsection{Problem Statement}\label{problem-statement}
 
@@ -377,33 +385,31 @@ unique solution. Hence there is a need to resort to iterative or
 optimisation-type solutions, such as IPF, simulated annealing,
 likelihood estimation, chi-squared fitting, or least-squares fitting.
 
-\subsection{Degeneracy, Entropy and Statistical
+\subsection{Degeneracy and Statistical
 Likelihood}\label{degeneracy-and-statistical-likelihood}
 
-In this work we use the term degeneracy to mean the number of possible different
+In this work we interpret degeneracy as the number of possible different
 ways a given overall population \(P\) can be sampled into a \(D\)-dimensional table
 \(\mathbf{T}\) containing \(S\) possible states \(\mathbf{k}\), with
 occupancy probability \(p_\mathbf{k}\), the system having \(d\) degrees
-of freedom. In this sense, the term degeneracy is closely related to (information-theoretic) entropy:
-a high-degeneracy state can be considered a high-entropy state, and a low-degeneracy state a low-entropy one. 
+of freedom. Making the assumption that marginals are uncorrelated, then the
+higher the degeneracy of the population, the more statistically likely
+the population is.
 
-Assuming that the marginal distributions are uncorrelated, then the
-higher the degeneracy/entropy of the population, the more statistically likely
-the population is. We measure the statistical likelihood of populations using a \(\chi^2\) statistic:
+We measure the degeneracy of populations using a \(\chi^2\) statistic:
 \begin{equation}
-\chi^2 = \sum\limits_{\mathbf{k}}\frac{(\mathbf{T}_\mathbf{k}-p_\mathbf{k}P)^2}{p_\mathbf{k}P}
+\chi^2 = \sum\limits_{\mathbf{k}}\frac{(\mathbf{T}_\mathbf{k}-p_\mathbf{k}S)^2}{p_\mathbf{k}S}
 \label{eqn:chi2}
 \end{equation}
-and from this which we can estimate a p-value, which represents the statistical
+from which we can estimate a p-value, which represents the statistical
 significance of the synthetic population.
 \begin{equation}
 \text{p-value}=1-F(d/2,\chi^2) 
 \end{equation}
 where \(F\) is the cumulative
 \(\chi^2\) density function and \(d\) the degrees of freedom of the
-system. 
-
-The purpose in this context is to use these metrics to demonstrate the ability of the sampling method described here to generate populations with a high p-value, i.e. high degeneracy, high entropy, high likelihood and low statistical significance.
+system. The aim in this context is to generate populations with a high
+p-value, i.e.~a low statistical significance and a high-degeneracy.
 
 \section{The Algorithm}\label{the-algorithm}
 
@@ -415,7 +421,7 @@ Given a valid input of \(D\) marginal vectors \(\mathbf{m}_i\), the process then
 
 \begin{enumerate*}
 \item
-  Create a \(D\)-dimensional discrete without-replacement distribution
+  Create an \(D\)-dimensional discrete without-replacement distribution
   using the marginals \(\mathbf{m}_i\)
 \item
   Sample \(P\) random variates from this distribution to create a
@@ -436,9 +442,9 @@ Given a valid input of \(D\) marginal vectors \(\mathbf{m}_i\), the process then
 \subsection{The Implementation}\label{the-implementation}
 
 The algorithm is implemented in an \texttt{R} package called
-\texttt{humanleague}. A description of the technical implementation details can be found in the Appendix. The package is open source under a GPL licence and available at \url{https://github.com/CatchDat/humanleague}.
+\texttt{humanleague}. A description of the technical implementation details can be found in the Appendix. The package is open source under a GPL licence and available at \url{https://github.com/CatchDat/humanleague}. It has been submitted for inclusion in the official CRAN repository of \texttt{R} packages.
 
-In order to use the microsynthesis function, the input data requirements are a number of discrete integer marginal distributions, i.e. counts of population in each state of some category. If any marginal data is expressed as probabilities, a function is provided to convert these to integer frequencies. For reference, we also provide a function for direct generation of Sobol sequences.
+In order to use this package, the input data requirements are a number of discrete integer marginal distributions, i.e. counts of population in each state of some category. If any marginal data is expressed as probabilities, a function is provided to convert these to integer frequencies.
 
 \subsection{Usage Examples}\label{usage-examples}
 
@@ -460,7 +466,7 @@ limit is arbitrary and could be increased if necessary. Input is simply
 a list of (between 2 and 12) integer vectors representing the marginals. Marginal vectors
 must all sum to the population (to satisfy the population constraint) \(P\).
 The output is broadly compatible with the established \texttt{mipfp}
-\citep{barthelemy_cran_2016} \texttt{R} package:
+(Barthelemy \& Suesse 2016) \texttt{R} package:
 \begin{itemize*}
 \item
   \(D\)-dimensional population table \(\mathbf{T_\mathbf{k}}\)
@@ -533,18 +539,19 @@ Methods}\label{comparison-to-existing-methods}
 
 \subsection{Statistical Properties}\label{statistical-properties}
 
-Using IPF with a unity seed is equivalent to populating each state proportionally to the probability of occupancy of the state. This solution maximises entropy.
+For this we compared the QIWS algorithm to IPF using a number of
+two-dimensional test cases. No integerisation was done to the IPF data (using e.g.~the \texttt{R}
+package \texttt{rakeR}) due to that fact that integerisation can cause a
+mismatch in one or more marginals.
 
-Sampling algorithms generally cannot achieve the same entropy since they only populate states with integer populations. 
+IPF was initialised with a random seed array, each element uniformly
+distributed in \([0,2)\), so that for the p-value tests the initial total population would be approximately equal to the final total.
 
-We assume that high-entropy populations are preferable for most applications and aim in this section is to show that quasirandom sampling is much better at achieving high-entropy populations than pseudorandom sampling.   
-
-
-TODO this is propbably pointless
-
-Perhaps do more histograms...
-
-R\^2?
+The first three tests are made-up examples. The remainder are marginal
+figures derived from 2011 UK census data at the MSOA level (mid-layer
+super output area), with one dimension representing person status in
+terms of age, sex, and economic activity, the other their workplace
+location (MSOA).
 
 \begin{table}[!t]
 	\centering
@@ -568,59 +575,41 @@ R\^2?
 	\label{tab1}	
 \end{table}
 
-An analysis was performed on two evenly distributed
+A more detailed analysis was performed on two evenly distributed
 marginal vectors of length 10 and a population \(P\) = 100 and number of
 states \(S\) = 100, sampling 10000 populations.
 
-%\begin{figure}[!t]
-%\centering
-%\includegraphics[width=0.5\linewidth]{figures/ipf_pvalue_dist}
-%\caption{Distribution of p-values of IPF.}
-%\label{fig:hist_ifp}
-%\end{figure}
+For reference, the histogram of p-values using IPF (with random seed
+values) yields the following rather unsurprising result\footnote{The IPF algorithm
+ seeks to maximise entropy, resulting in a low \(\chi^2\) statistic (Lovelace et al. 2015).}:
+
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.5\linewidth]{figures/ipf_pvalue_dist}
+\caption{Distribution of p-values of IPF.}
+\label{fig:hist_ifp}
+\end{figure}
+
 
 We compared the statistical performance of our integer without-replacement sampling using a pseudorandom
 generator and a quasirandom generator. The algorithm is guaranteed to
 work in both cases so we looked at the distribution of p-values, which
-can be seen in figure \ref{fig:hist_sampling}.
+can be seen in figure 3.
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.498\linewidth]{figures/hist_pseudo_1} 
-\includegraphics[width=0.498\linewidth]{figures/hist_quasi_1} 
-\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, mean population density 1.0}
-\label{fig:hist_sampling1}
-\end{figure}
-
-\begin{figure}[!t]
-\centering
-\includegraphics[width=0.498\linewidth]{figures/hist_pseudo_3} 
-\includegraphics[width=0.498\linewidth]{figures/hist_quasi_3} 
-\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, population density 3.0}
-\label{fig:hist_sampling3}
-\end{figure}
-
-\begin{figure}[!t]
-\centering
-\includegraphics[width=0.498\linewidth]{figures/hist_pseudo_10} 
-\includegraphics[width=0.498\linewidth]{figures/hist_quasi_10} 
-\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, population density 10.0}
-\label{fig:hist_sampling3}
-\end{figure}
-
-\begin{figure}[!t]
-\centering
-\includegraphics[width=0.498\linewidth]{figures/hist_pseudo_100} 
-\includegraphics[width=0.498\linewidth]{figures/hist_quasi_100} 
-\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, mean population density 100.0}
-\label{fig:hist_sampling10}
+\includegraphics[width=0.498\linewidth]{figures/iqws_prng_pvalue_dist} 
+\includegraphics[width=0.498\linewidth]{figures/iqws_pvalue_dist} 
+\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling.}
+\label{fig:hist_sampling}
 \end{figure}
 
 
 \subsection{Performance}\label{performance}
 
 Since computers vary widely in performance for many reasons, we present
-performance values normalised to the execution time of QIWS for the first test case. For reference, the hardware used was a recent, fairly standard desktop PC and the performance test run times (for 1000 tests) were of the order of seconds.
+normalised performance values. For reference, the hardware used was a recent, fairly standard desktop PC and the performance test run times (for 1000 tests) were of the order of seconds.
 
 The test timing results are summarised in table \ref{tab2} for a number of theoretical and more realistic test cases.
 
@@ -701,7 +690,7 @@ algorithm, and in fact further testing did reveal cases where the
 algorithm the number of resamples required was unacceptably large, even
 exhausting the period of the generator.
 
-This flaw drove the authors to develop an alternative formulation
+This flaw drove the authors to come up with an alternative formulation
 of the algorithm, and it transpired that without-replacement sampling
 would guarantee that the population matched all marginals by design (as
 explained in section \ref{sampling-without-replacement}), eliminating the need for the correction step
@@ -709,7 +698,7 @@ entirely. In fact, this method is guaranteed to work regardless of the
 choice of underlying random number generation.
 
 The next phase of the work was to analyse generated populations
-statistically, focussing on the statistical likelihood of the resulting populations in order to determine whether quasirandom sampling offers any additional benefit.
+statistically, focussing on the degeneracy of the resulting populations in order to determine whether quasirandom sampling offers any additional benefit.
 The results from this work, presented in the previous section, are
 discussed below.
 
@@ -726,7 +715,7 @@ simple tests, generating the lowest mean p-values. Since these are
 
 \subsubsection{Randomness in Context}\label{randomness-in-context}
 
-To put pseudorandom versus quasirandom sampling into context, and to explain at least intuitively\footnote{We do not present this as a mathmatically rigorous analysis.} 
+To put pseudorandom versus quasirandom sampling into context, and to explain at least empirically 
 why we observe different distributions of p-values (table \ref{fig:hist_sampling}), firstly consider a
 `random' number generator that simply always returns zero. If we used
 this as the basis for without-replacement sampling of a marginal
@@ -741,7 +730,7 @@ a population matrix
 suggesting that the marginals are strongly correlated. This particular
 result has a low degeneracy - there are relatively few different ways at
 arriving at this result - and a p-value of effectively zero implying
-that it is vanishingly unlikely that this population resulted by chance from independent marginal distributions.
+that it is vanishingly unlikely that this population resulted by chance.
 
 Simplifying equation \ref{eqn:chi2} for this example, and assuming a variation \(X\) in the 
 populations of each state (from their expected value), we can thus estimate \(\chi^2\) as
@@ -769,34 +758,39 @@ Repeating again, this time using a quasirandom sequence and bearing in mind that
 10\pm1 & 10\pm1 & 10\pm1 \\
 10\pm1 & 10\pm1 & 10\pm1 \\
 10\pm1 & 10\pm1 & 10\pm1 \end{array} \right)\]
-This time the variation \(X=(P/N)/(P/N)=1\), and thus
+This time the variation \(X=(P/N)/(P/N)=1\), and 
 \begin{equation}
 \chi^2 \approx \frac{N^2}{P}
 \end{equation}
-which in this example is 0.9, an order of magnitude lower, and a corresponding p-value of 0.92.
+which in this example is 0.9, an order of magnitude lower, and a corresponding p-value of 0.92. If this analysis is correct, then it makes a predictable test: if the ratio \(N/P\) is greater than unity, then populations generated with quasirandom sampling may actually have a higher \(\chi^2\) statistic than those generated using pseudorandom sampling. This corresponds to `sparse' problems where the population is smaller than the number of possible states it can occupy.
 
-This result, whilst not mathematically rigorous - the analysis is complicated by the use of without-replacement sampling - is in line with the sampled uniform distributions shown in table \ref{fig:hist_pq_1d}. We believe that this example goes some way to explaining the histograms given in figure \ref{fig:hist_sampling} but do not doubt that a further more in-depth statistical analysis would be beneficial here.
+We have not yet been able to test the above hypothesis, but believe that this example goes some way to explaining the histograms given in figure \ref{fig:hist_sampling} but do not doubt that a further more in-depth statistical analysis would be beneficial here.
 
-\subsubsection{Statistical Likelihood}\label{degeneracy}
+\subsubsection{Degeneracy}\label{degeneracy}
 
 The \(\chi^2\) value resulting from IPF is likely to be slightly lower
-than QIWS simply due to the fact the former numbers are not generally integral.
+than QIWS due to the fact the former numbers are not generally integral.
 Figure 2 demonstrates that IPF almost always results in a p-value of 1.
 This is entirely expected due to the fact that the IPF algorithm seeks a 
 maximum-entropy solution.
 
-QIWS, being in nature a sampling algorithm, does not always achieve such high p-values in general, 
-as seen in figure 3, and there is a marked difference in the distribution of p-values
+QIWS does not achieve such high p-values in general, as seen in figure
+3, and there is a marked difference in the distribution of p-values
 depending on the type of underlying random generator used. It can be
-seen clearly that quasirandom sampling generally yields more statistically likely (and thus more degenerate)
+seen clearly that quasirandom sampling generally yields more degenerate
 populations, and is much closer to IPF in this respect.
 
-Whilst this may be a drawback for certain applications, we also envisage that it could be advantageous - since multiple populations can be generated from the same marginal data with different levels of likelihood/degeneracy. In spite of this we would caution users to check the resulting p-value against some suitable threshold and resample if necessary.
+It should be borne in mind that one of the reasons that QIWS cannot
+achieve the high p-value levels as consistently as IPF is due to the
+simple fact that the population is integral, and this will generally
+result in a higher \(\chi^2\) statistic. We would caution users,
+however, to check the resulting p-value against some suitable threshold
+and resample if necessary.
 
 \subsection{Performance}\label{performance-1}
 
-QIWS performance in terms of computational efficiency is far superior to IPF. One reason for this is that
-QIWS is not iterative, but the following points should also be noted:
+QIWS performance is far superior to IPF. One reason for this is that
+QIWS is not iterative, but the following points should be noted:
 
 \begin{itemize*}
 \item
@@ -818,7 +812,7 @@ only be available for a subset of the whole population. By using this
 data in the initial guess for the iteration, rather than as a marginal
 constraint, the incomplete data is scaled to, and smoothed over, the
 overall population. An example of this type of microsimulation
-``CakeMap'' is given in \cite{lovelace_spatial_2016}.
+``CakeMap'' is given in Lovelace and Dumont (2016).
 
 QIWS requires that all marginals are fully-specified. It needs this data
 to construct a multivariate discrete distribution to sample from. It is
@@ -828,10 +822,6 @@ For agent-based modelling (ABM) applications, QIWS has the advantage
 that it always generates integer populations. Thus integerisation, which
 may alter the population in such a way that the marginals are no longer
 met, is not required.
-
-Other approaches to generating integer populations have been used, for example in the doubly-constrained model described in \cite{lenormand_systematic_2016}, they use a fractional population generated with IPF as a joint distribution from which to randomly sample individuals. Our method differs significantly from this approach in that it directly samples the marginal distributions to generate an integer population, and uses both quasirandom and without-replacement sampling techniques to achieve this.
-
-With given marginals and seed population, IPF will always result in the same overall population. QIWS differs in this respect in that the same inputs can be used to generate multiple different populations, all of which meet the marginal constraints. These could potentially used in an ensemble simulation to test the sensitivity of a model to the input population.
 
 QIWS may potentially be of use in the process of anonymising
 populations. It is outside the scope of this work, but since full
@@ -855,8 +845,10 @@ The QIWS algorithm was thus designed with this type of synthesis in
 mind, where all marginal data is fully specified, and in this context it
 fulfils the requirements.
 
-The algorithm computes the statistical likelihood/significance metrics in 
-order to guide the user in determining the suitability of the generated population.
+If there are specific requirements for a degenerate population,
+statistical data is provided about the generated population that will
+guide the user in determining the suitability of the generated
+population.
 
 In situations where integral populations are desirable QIWS presents an
 advantage over established techniques by eliminating the need for
@@ -871,7 +863,7 @@ We have established that QIWS can be used for microsynthesis given
 aggregate data. Although outside the scope of this work, we believe that
 the algorithm could equally be applied to an anonymisation process
 whereby individual-level data is first aggregated and then synthesised,
-for example \cite{nowok_synthpop:_2016}.
+for example (Nowok, Raab, and Dibben 2016).
 
 We are aware that in its current implementation, QIWS is more limited in scope than IPF in that it is
 unable to deal with cases where some marginal data is not explicitly
@@ -879,15 +871,15 @@ specified, instead being expressed in the seed population used to
 initialise the IPF iteration. It may be that with further development of
 the algorithm some of these limitations could be overcome.
 
-Our analysis of why quasirandom sampling results in more statistically likely populations than pseudorandom sampling is not mathematically rigourous, and perhaps more could be done to explain the shapes of the histograms in table \ref{fig:hist_sampling}.
+Our analysis of why quasirandom sampling results in more degenerate populations than pseudorandom sampling is not mathematically rigourous, and perhaps more could be done to explain the shapes of the histograms in table \ref{fig:hist_sampling}
 
-We envisage QIWS as an evolving technique that complements rather than
+As such we envisage QIWS as an evolving technique that complements rather than
 supplants established methods, and publicise the technique as such. The current implementation could perhaps be extended to deal with correlated and/or constrained marginals, and to be able to use data supplied as a smaller seed population as opposed to a fully-populated marginal.
 
 \section{Acknowledgements}\label{acknowledgements}
 
 The authors acknowledge Innovate UK's Catch! project for providing the
-funding for this work. We are grateful to two anonymous reviewers for helpful comments on an earlier draft of this manuscript
+funding for this work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
