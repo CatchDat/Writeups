@@ -118,23 +118,9 @@ Established methods for synthesising a population from geographically
 aggregated data are robust and well understood. However, most rely on
 the potentially detrimental process of integerisation if a
 whole-individual population is required, e.g. for use in agent-based
-modelling (ABM). This paper investigates a sampling method,
-Quasirandom Integer Without-replacement Sampling (QIWS),
-which was designed to synthesise spatial microdata
-in a computationally efficient way.
-QIWS uses quasirandom sequences to sample populations
-based on known marginal constraints in a process akin to
-iterative proportional fitting (IPF), but requires no
-seed and directly generates integer populations without requiring
-the additional step of integerisation.
-Model experiments demonstrate the method's
-behaviour, highlighting the importance of sampling from
- the marginal distributions \emph{without replacement}.
-We conclude that he method has advantages over IPF 
-for the generation of spatial microdata for ABM when constraint
-variables have equal total populations (providing a direction for future work).
-The method has been implemented in open source software and is available via
-the R package \texttt{humanleague}.
+modelling (ABM). This paper describes and investigates the use of quasirandom sequences to sample 
+populations from known marginal constraints whilst preserving those marginal distributions.
+We call this technique Quasirandom Integer Without-replacement Sampling (QIWS) and show that the statistical properties of quasirandomly sampled populations to be superior to those of pseudorandomly sampled ones in that they tend to yield entropies much closer to populations generated using the entropy-maximising iterative proportional fitting (IPF) algorithm. The implementation is extremely efficient, easily outperforming common IPF implementations, and freely available as open source \texttt{R} package called \texttt{humanleague}. Finally we outline how the current limitations of the implementation can be overcome, providing a direction for future work.
 \end{abstract}
 
 \begin{keywords}
@@ -175,17 +161,16 @@ such as \cite{barthelemy_cran_2016} and \cite{jones_raker:_2016}.
 However, the method has various limitations from the perspective of
 social simulation via agent-based models: IPF
 generates fractional weights instead of integer populations
-(an issue tackled by integerisation);
+(an issue that can be tackled by integerisation);
 handles empty cells poorly \citep{lovelace_evaluating_2015};
 and requires a representative individual-level `seed' population.
 These issues and the mathematics underlying them are explored
 in \cite{zaloznik_iterative_2011}.
 
-Integerisation is only a partial solution to the issue of fractional weights.
-Algorithms for integerisation such as `truncate replicate sample'
-maintain the correct overall population,
-but the adjustments can create a mismatch between the with the original
-and simulated marginal data \citep{lovelace_truncate_2013}.
+Integerisation is only a partial solution to the issue of fractional weights. Whilst
+algorithms for integerisation such as `truncate replicate sample'
+maintain the correct overall population, the adjustments can create a mismatch between the original
+and simulated marginal data \citep{lovelace_truncate_2013}. Using IPF-generated probabilities as a basis for a sampling algorithm is an alternative solution but again care must be taken to: correcly match the marginal distributions; and generate a realistic population.   
 
 In this paper we investigate sampling techniques where a synthetic population is built exclusively in the integer domain. The research reported in this paper forms part of, and is partly motivated by, a larger body of work in which there is a requirement to generate individual simulated agents for an entire city. In the larger project, the ultimate goal is to impute journey patterns to each member of the simulated population using app-based mobility traces in order to generate travel demand schedules for an entire urban population in pseudo-real-time.
 
@@ -475,7 +460,7 @@ limit is arbitrary and could be increased if necessary. Input is simply
 a list of (between 2 and 12) integer vectors representing the marginals. Marginal vectors
 must all sum to the population (to satisfy the population constraint) \(P\).
 The output is broadly compatible with the established \texttt{mipfp}
-(Barthelemy \& Suesse 2016) \texttt{R} package:
+\citep{barthelemy_cran_2016} \texttt{R} package:
 \begin{itemize*}
 \item
   \(D\)-dimensional population table \(\mathbf{T_\mathbf{k}}\)
@@ -548,19 +533,18 @@ Methods}\label{comparison-to-existing-methods}
 
 \subsection{Statistical Properties}\label{statistical-properties}
 
-For this we compared the QIWS algorithm to IPF using a number of
-two-dimensional test cases. No integerisation was done to the IPF data (using e.g.~the \texttt{R}
-package \texttt{rakeR}) due to that fact that integerisation can cause a
-mismatch in one or more marginals.
+Using IPF with a unity seed is equivalent to populating each state proportionally to the probability of occupancy of the state. This solution maximises entropy.
 
-IPF was initialised with a random seed array, each element uniformly
-distributed in \([0,2)\), so that for the p-value tests the initial total population would be approximately equal to the final total.
+Sampling algorithms generally cannot achieve the same entropy since they only populate states with integer populations. 
 
-The first three tests are made-up examples. The remainder are marginal
-figures derived from 2011 UK census data at the MSOA level (mid-layer
-super output area), with one dimension representing person status in
-terms of age, sex, and economic activity, the other their workplace
-location (MSOA).
+We assume that high-entropy populations are preferable for most applications and aim in this section is to show that quasirandom sampling is much better at achieving high-entropy populations than pseudorandom sampling.   
+
+
+TODO this is propbably pointless
+
+Perhaps do more histograms...
+
+R\^2?
 
 \begin{table}[!t]
 	\centering
@@ -584,27 +568,21 @@ location (MSOA).
 	\label{tab1}	
 \end{table}
 
-A more detailed analysis was performed on two evenly distributed
+An analysis was performed on two evenly distributed
 marginal vectors of length 10 and a population \(P\) = 100 and number of
 states \(S\) = 100, sampling 10000 populations.
 
-For reference, the histogram of p-values using IPF (with random seed
-values) yields the following rather unsurprising result\footnote{The IPF algorithm
- seeks to maximise entropy, resulting in a low \(\chi^2\) statistic (Lovelace et al. 2015).}:
-
-
-\begin{figure}[!t]
-\centering
-\includegraphics[width=0.5\linewidth]{figures/ipf_pvalue_dist}
-\caption{Distribution of p-values of IPF.}
-\label{fig:hist_ifp}
-\end{figure}
-
+%\begin{figure}[!t]
+%\centering
+%\includegraphics[width=0.5\linewidth]{figures/ipf_pvalue_dist}
+%\caption{Distribution of p-values of IPF.}
+%\label{fig:hist_ifp}
+%\end{figure}
 
 We compared the statistical performance of our integer without-replacement sampling using a pseudorandom
 generator and a quasirandom generator. The algorithm is guaranteed to
 work in both cases so we looked at the distribution of p-values, which
-can be seen in figure 3.
+can be seen in figure \ref{fig:hist_sampling}.
 
 \begin{figure}[!t]
 \centering
@@ -816,7 +794,7 @@ only be available for a subset of the whole population. By using this
 data in the initial guess for the iteration, rather than as a marginal
 constraint, the incomplete data is scaled to, and smoothed over, the
 overall population. An example of this type of microsimulation
-``CakeMap'' is given in Lovelace and Dumont (2016).
+``CakeMap'' is given in \cite{lovelace_spatial_2016}.
 
 QIWS requires that all marginals are fully-specified. It needs this data
 to construct a multivariate discrete distribution to sample from. It is
