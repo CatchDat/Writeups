@@ -534,40 +534,17 @@ Methods}\label{comparison-to-existing-methods}
 
 \subsection{Statistical Properties}\label{statistical-properties}
 
-Using IPF with a unity seed is equivalent to populating each state proportionally to the probability of occupancy of the state. This solution maximises entropy.
-
-Sampling algorithms generally cannot achieve the same entropy since they only populate states with integer populations. 
+Using IPF with a unity seed is equivalent to populating each state proportionally to the probability of occupancy of the state. This solution maximises entropy (\cite{lovelace_evaluating_2015}). Sampling algorithms generally cannot achieve the same entropy since they only populate states with integer populations. 
 
 We assume that high-entropy populations are preferable for most applications and aim in this section is to show that quasirandom sampling is much better at achieving high-entropy populations than pseudorandom sampling.   
 
-
-TODO this is propbably pointless
-
-Perhaps do more histograms...
-
-R\^2?
-
-An analysis was performed on two evenly distributed
-marginal vectors of length 10 and a population \(P\) = 100 and number of
-states \(S\) = 100, sampling 10000 populations.
-
-%\begin{figure}[!t]
-%\centering
-%\includegraphics[width=0.5\linewidth]{figures/ipf_pvalue_dist}
-%\caption{Distribution of p-values of IPF.}
-%\label{fig:hist_ifp}
-%\end{figure}
-
-We compared the statistical performance of our integer without-replacement sampling using a pseudorandom
-generator and a quasirandom generator. The algorithm is guaranteed to
-work in both cases so we looked at the distribution of p-values, which
-can be seen in figure \ref{fig:hist_sampling}.
+In order to compare psuedorandomly-sampled and quasirandomly sampled populations, we considered a two-dimensional test case in which each marginal had ten equally probable states. We varied the total population resulting in population densities (average population per state) of 1, 3, 10 and 100. For each case we recorded the p-value for 10000 populations. Histograms of the p-values are illustrated in figures \ref{fig:hist_sampling1} to \ref{fig:hist_sampling100}.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.498\linewidth]{figures/hist_pseudo_1} 
 \includegraphics[width=0.498\linewidth]{figures/hist_quasi_1} 
-\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, mean population density 1.0}
+\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, population density 1.0.}
 \label{fig:hist_sampling1}
 \end{figure}
 
@@ -575,7 +552,7 @@ can be seen in figure \ref{fig:hist_sampling}.
 \centering
 \includegraphics[width=0.498\linewidth]{figures/hist_pseudo_3} 
 \includegraphics[width=0.498\linewidth]{figures/hist_quasi_3} 
-\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, population density 3.0}
+\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, population density 3.0.}
 \label{fig:hist_sampling3}
 \end{figure}
 
@@ -583,16 +560,16 @@ can be seen in figure \ref{fig:hist_sampling}.
 \centering
 \includegraphics[width=0.498\linewidth]{figures/hist_pseudo_10} 
 \includegraphics[width=0.498\linewidth]{figures/hist_quasi_10} 
-\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, population density 10.0}
-\label{fig:hist_sampling3}
+\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, population density 10.0.}
+\label{fig:hist_sampling10}
 \end{figure}
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.498\linewidth]{figures/hist_pseudo_100} 
 \includegraphics[width=0.498\linewidth]{figures/hist_quasi_100} 
-\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, mean population density 100.0}
-\label{fig:hist_sampling10}
+\caption{Distribution of p-values of QIWS using pseudorandom (left) and quasirandom (right) sampling, population density 100.0.}
+\label{fig:hist_sampling100}
 \end{figure}
 
 
@@ -603,23 +580,18 @@ performance values normalised to the execution time of QIWS for the first test c
 
 The test timing results are summarised in table \ref{tab2} for a number of theoretical and more realistic test cases.
 
-
-
 \begin{table}[!t]
 	\centering
-	\begin{tabular}{c|c|c|c|c}
-	\toprule
-	Pop & States & N & QIWS & IPF\tabularnewline
-	\midrule
-	20 & 4 & 1000 & 1.0 & 66.3\tabularnewline
-	125 & 25 & 1000 & 1.3 & 96.7\tabularnewline
-	935 & 49 & 1000 & 2.3 & 68.3\tabularnewline
-	4958 & 16032 & 1000 & 30.7 & 1559.3\tabularnewline
-	4098 & 11760 & 1000 & 23.0 & 1069.0\tabularnewline
-	4029 & 11904 & 1000 & 22.7 & 1027.3\tabularnewline
-	4989 & 14640 & 1000 & 28.3 & 1457.0\tabularnewline
-	5219 & 15168 & 1000 & 28.7 & 1557.7\tabularnewline
-	\bottomrule			
+	\begin{tabular}{|c|c|c|c|c|}\hline
+	  Pop & States & N & QIWS & IPF\\\hline
+	  20 & 4 & 1000 & 1.0 & 66.3 \\
+	  125 & 25 & 1000 & 1.3 & 96.7\\
+	  935 & 49 & 1000 & 2.3 & 68.3\\
+	  4958 & 16032 & 1000 & 30.7 & 1559.3\\
+	  4098 & 11760 & 1000 & 23.0 & 1069.0\\
+	  4029 & 11904 & 1000 & 22.7 & 1027.3\\
+	  4989 & 14640 & 1000 & 28.3 & 1457.0\\
+	  5219 & 15168 & 1000 & 28.7 & 1557.7\\\hline		
 	\end{tabular}
 	\caption{Relative computation time of the algorithms for \(N\) runs, using the first case as a baseline.}
 	\label{tab2}	
@@ -642,8 +614,7 @@ the algorithm often failed to exactly match all the marginals.
 In general, the resulting population mismatched the marginals only
 slightly. A correction algorithm was implemented which, applied at most
 once for each dimension of the population, adjusted the states by the
-error in the marginal for that dimension. This corrected the overall
-population, and is reminiscent of an iteration in IPF.
+error in the marginal for that dimension. 
 
 It was also demonstrated that a correction step as described above could
 not be applied to a pseudorandomly generated population because the
@@ -677,19 +648,10 @@ discussed below.
 
 \subsection{Statistical Properties}\label{statistical-properties-1}
 
-\subsubsection{General Remarks}\label{general-remarks}
-
-Neither IPF nor QIWS failed to converge on any of the test cases in
-Table 1.
-
-One observation was that IPF performed least well on the
-simple tests, generating the lowest mean p-values. Since these are
-``toy'' examples we do not attribute any significance to this as IPF is known not to perform well in such cases.
-
 \subsubsection{Randomness in Context}\label{randomness-in-context}
 
 To put pseudorandom versus quasirandom sampling into context, and to explain at least intuitively\footnote{We do not present this as a mathmatically rigorous analysis.} 
-why we observe different distributions of p-values (table \ref{fig:hist_sampling}), firstly consider a
+why we observe different distributions of p-values (tables \ref{fig:hist_sampling1} to \ref{fig:hist_sampling100}), firstly consider a
 `random' number generator that simply always returns zero. If we used
 this as the basis for without-replacement sampling of a marginal
 distribution \(\lbrace30,30,30\rbrace\), we would get a sequence
@@ -737,28 +699,21 @@ This time the variation \(X=(P/N)/(P/N)=1\), and thus
 \end{equation}
 which in this example is 0.9, an order of magnitude lower, and a corresponding p-value of 0.92.
 
-This result, whilst not mathematically rigorous - the analysis is complicated by the use of without-replacement sampling - is in line with the sampled uniform distributions shown in table \ref{fig:hist_pq_1d}. We believe that this example goes some way to explaining the histograms given in figure \ref{fig:hist_sampling} but do not doubt that a further more in-depth statistical analysis would be beneficial here.
+This result, whilst not mathematically rigorous - the analysis is complicated by the use of without-replacement sampling - is in line with the sampled uniform distributions shown in figure \ref{fig:hist_pq_1d}. We believe that this example goes some way to explaining the histograms given in figures \ref{fig:hist_sampling1} to \ref{fig:hist_sampling100}.
+
+Furthermore, the figures seem to suggest that whilst pseudorandomly-sampled populations converge to an even distribution of p-values (i.e. there is no bias towards high-entropy populations) as the population density increases, quasirandomly-sampled populations strongly converge to populations with a unity p-value. The latter is clearly preferable when the marginals are meant to be independent, confirming the null hypothesis.
+
+For low population densities, there is evidence of `quantisation' of the p-value distribution, this is thought to arise from the fact that for sparse populations, there are fewer possible configurations of the population. Why there is an apparent bias towards p-values around 0.5 for pseudorandomly sampled sparse populations is unclear to us.
 
 \subsubsection{Statistical Likelihood}\label{degeneracy}
 
-The \(\chi^2\) value resulting from IPF is likely to be slightly lower
-than QIWS simply due to the fact the former numbers are not generally integral.
-Figure 2 demonstrates that IPF almost always results in a p-value of 1.
-This is entirely expected due to the fact that the IPF algorithm seeks a 
-maximum-entropy solution.
+The \(\chi^2\) value resulting from QIWS cannot generally be as low as zero simply due to the fact the population is not integral.
 
-QIWS, being in nature a sampling algorithm, does not always achieve such high p-values in general, 
-as seen in figure 3, and there is a marked difference in the distribution of p-values
-depending on the type of underlying random generator used. It can be
-seen clearly that quasirandom sampling generally yields more statistically likely (and thus more degenerate)
-populations, and is much closer to IPF in this respect.
-
-Whilst this may be a drawback for certain applications, we also envisage that it could be advantageous - since multiple populations can be generated from the same marginal data with different levels of likelihood/degeneracy. In spite of this we would caution users to check the resulting p-value against some suitable threshold and resample if necessary.
+As explained is the previous section, QIWS has a strong bias towards high p-values but may still produce statisitcally unlikely populations. The \(\chi^2\) and p-value that are supplied along with the population should be checked against some suitable threshold and resample if necessary.
 
 \subsection{Performance}\label{performance-1}
 
-QIWS performance in terms of computational efficiency is far superior to IPF. One reason for this is that
-QIWS is not iterative, but the following points should also be noted:
+QIWS performance in terms of computational efficiency is far superior to the IPF implemenation we compared it to. One reason for this is that QIWS is not iterative, but the following points should also be noted:
 
 \begin{itemize*}
 \item
@@ -776,24 +731,22 @@ QIWS is not iterative, but the following points should also be noted:
 
 IPF can be used for microsimulation in cases where some marginal data is
 not fully specified. For example, some categorical constraint data may
-only be available for a subset of the whole population. By using this
-data in the initial guess for the iteration, rather than as a marginal
+only be available for a subset of the whole population, which may also contain marginal data in other categories. By using this
+data as a seed population, rather than as a marginal
 constraint, the incomplete data is scaled to, and smoothed over, the
 overall population. An example of this type of microsimulation
 ``CakeMap'' is given in \cite{lovelace_spatial_2016}.
 
-QIWS requires that all marginals are fully-specified. It needs this data
-to construct a multivariate discrete distribution to sample from. It is
-thus not applicable to problems such as ``CakeMap''.
+Similar sampling techniques have been implemented, although none mention the use of quasirandom sampling. For example, in the doubly-constrained model described in \cite{lenormand_systematic_2016}, they use a fractional population generated with IPF as a joint distribution from which to randomly sample individuals. In \cite{gargiulo_commuting_2012} without-replacement sampling is used and the joint distribution is dynamically updated after each sample.
+
+The authors believe that the current implementation of QIWS could be extended to deal with problems such as ``CakeMap'' or more generaly ones where some exogenous data must be taken into account. The approach would be to construct a dynamic joint distribution from marginal and exogenous data, updating as each sample is taken.
 
 For agent-based modelling (ABM) applications, QIWS has the advantage
 that it always generates integer populations. Thus integerisation, which
 may alter the population in such a way that the marginals are no longer
 met, is not required.
 
-Other approaches to generating integer populations have been used, for example in the doubly-constrained model described in \cite{lenormand_systematic_2016}, they use a fractional population generated with IPF as a joint distribution from which to randomly sample individuals. Our method differs significantly from this approach in that it directly samples the marginal distributions to generate an integer population, and uses both quasirandom and without-replacement sampling techniques to achieve this.
-
-With given marginals and seed population, IPF will always result in the same overall population. QIWS differs in this respect in that the same inputs can be used to generate multiple different populations, all of which meet the marginal constraints. These could potentially used in an ensemble simulation to test the sensitivity of a model to the input population.
+With given marginals and seed population, IPF will always result in the same overall population. QIWS differs in this respect in that the same inputs can be used to generate multiple different populations, all of which meet the marginal constraints. These could potentially used in an ensemble simulation to test the sensitivity of a model to different synthetic populations generated from the same marginal data.
 
 QIWS may potentially be of use in the process of anonymising
 populations. It is outside the scope of this work, but since full
