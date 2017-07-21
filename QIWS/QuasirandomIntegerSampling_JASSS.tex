@@ -120,7 +120,7 @@ the potentially detrimental process of integerisation if a
 whole-individual population is required, e.g. for use in agent-based
 modelling (ABM). This paper describes and investigates the use of quasirandom sequences to sample 
 populations from known marginal constraints whilst preserving those marginal distributions.
-We call this technique Quasirandom Integer Without-replacement Sampling (QIWS) and show that the statistical properties of quasirandomly sampled populations to be superior to those of pseudorandomly sampled ones in that they tend to yield entropies much closer to populations generated using the entropy-maximising iterative proportional fitting (IPF) algorithm. The implementation is extremely efficient, easily outperforming common IPF implementations. It is freely available as an open source \texttt{R} package called \texttt{humanleague}. Finally, we outline how the current limitations of the implementation can be overcome, providing a direction for future work.
+We call this technique Quasirandom Integer Without-replacement Sampling (QIWS) and show that the statistical properties of quasirandomly sampled populations to be superior to those of pseudorandomly sampled ones in that they tend to yield entropies much closer to populations generated using the entropy-maximising iterative proportional fitting (IPF) algorithm. The implementation is extremely efficient, easily outperforming common IPF implementations. It is freely available as an open source \texttt{R} package called \texttt{humanleague}. Finally, we suggest how the current limitations of the implementation can be overcome, providing a direction for future work.
 \end{abstract}
 
 \begin{keywords}
@@ -170,7 +170,7 @@ in \cite{zaloznik_iterative_2011}.
 Integerisation is only a partial solution to the issue of fractional weights. Whilst
 algorithms for integerisation such as `truncate replicate sample'
 maintain the correct overall population, the adjustments can create a mismatch between the original
-and simulated marginal data \citep{lovelace_truncate_2013}. Using IPF-generated probabilities as a basis for a sampling algorithm is an alternative solution but again care must be taken to correcly match the marginal distributions and generate a realistic population.   
+and simulated marginal data \citep{lovelace_truncate_2013}. Using IPF-generated probabilities as a basis for a sampling algorithm is an alternative solution but again care must be taken to correctly match the marginal distributions and generate a realistic population.   
 
 In this paper we investigate sampling techniques where a synthetic population is built exclusively in the integer domain. The research reported in this paper forms part of, and is partly motivated by, a larger body of work in which there is a requirement to generate individual simulated agents for an entire city. In the larger project, the ultimate goal is to impute journey patterns to each member of the simulated population using app-based mobility traces in order to generate travel demand schedules for an entire urban population in pseudo-real-time.
 
@@ -192,7 +192,7 @@ sequences.
 
 Working exclusively in the integer domain requires that marginal frequencies are integral. Often, these are expressed as probabilities rather than frequencies. We propose that integerising each marginal at this stage is preferable to integerising the final population. Mathematically, integerisation in a single dimension is straightforward and a demonstrably optimal (i.e. closest) solution can always be reached.    
 
-We show that by using without-replacement sampling we can guarantee that the randomly sampled population will exactly match the marginal data. Secondly we compare the statistical properties of populations generated with IPF, and sampled using pseudo- and quasirandom numbers  showing that the latter sampling technique provides far better degeneracy, closer to the maximal entropy soltuion that IPF converges to.
+We show that by using without-replacement sampling we can guarantee that the randomly sampled population will exactly match the marginal data. Secondly we compare the statistical properties of populations generated with IPF, and sampled using pseudo- and quasirandom numbers  showing that the latter sampling technique provides far better degeneracy, closer to the maximal entropy solution that IPF converges to.
 
 \section{Theory}\label{theory}
 
@@ -244,7 +244,7 @@ require far fewer samples to achieve the same level of accuracy. This makes quas
 
 Figure 2 illustrates the superior convergence of quasirandom numbers. The histograms contain 10000 samples in 100 bins, and clearly the quasirandom sequence is far closer to the true distribution. Furthermore, consider the following simple example: we wish to calculate the expected value of the sum of 2 fair and independent dice, sampling 100 times. Using pseudorandom sampling, with a standard error proportional to the square root of the number of samples, we would expect to get an estimate of \(7 \pm 10\%\). However, using quasirandom sampling, since the standard error
 \footnote{Strictly speaking, it is not mathematically valid to attribute a standard error value to results generated from a quasirandom sequence as there is no randomness. However the value is useful for qualitative comparison.} 
-  is inversely proportional to the number of samples, the estimate will be \(7 \pm 1\%\). To achieve the same level of accuracy with peudorandom numbers would require 10000 samples.
+  is inversely proportional to the number of samples, the estimate will be \(7 \pm 1\%\). To achieve the same level of accuracy with pseudorandom numbers would require 10000 samples.
 
 Quasirandom sequences are not seeded like pseudorandom generators. To
 avoid repetition, and for better degeneracy, it is recommended to
@@ -306,7 +306,7 @@ matching the population, and that \(g_i\) is minimised. In many cases there may 
 
 Population synthesis (Orcutt 1957) refers to the (re)generation of
 individual-level data from aggregate (marginal) data. For example, UK
-census data provides aggregate data across numerous socio-economic
+census data provides aggregate data across numerous socioeconomic
 categories at various geographical resolutions - but it expressly does
 not provide data at an individual-level, for privacy reasons among
 others. Only the most basic form of microsynthesis is described here - that where only the marginal data governs the final population, and no exogenous data is supplied. This corresponds to the use of IPF with a unity seed.  
@@ -318,7 +318,7 @@ follows:\footnote{In our notation the index \(i\) is scalar and
   the problem, and refers to a single state within the contingency table.}
 we wish to generate a population \(P\) of individuals which can be characterised into \(D\) separate categories, 
 each of which can occupy \(l\) discrete states. Each category is represented by a known frequency vector
-\(\mathbf{m}_i\) of length \(l_i\) giving the marginal occurences of a state within a single category. 
+\(\mathbf{m}_i\) of length \(l_i\) giving the marginal occurrences of a state within a single category. 
 Thus we have \(S\) possible overall states 
 \begin{equation}
 S=\prod\limits_{i=1}^{D}l_i
@@ -407,7 +407,7 @@ The purpose in this context is to use these metrics to demonstrate the ability o
 
 This section describes the Quasirandom Integer Without-replacement Sampling (QIWS) algorithm. A commentary on the process by which we arrived at this algorithm follows in the Discussion.
 
-The inputs required for the algorithm to operate are simply a number of integer vectors definining the marginals. The elements of each vector must sum to the same value, satisfying the \emph{population constraint} defined earlier.
+The inputs required for the algorithm to operate are simply a number of integer vectors defining the marginals. The elements of each vector must sum to the same value, satisfying the \emph{population constraint} defined earlier.
 
 Given a valid input of \(D\) marginal vectors \(\mathbf{m}_i\), the process then proceeds as follows:
 
@@ -578,23 +578,23 @@ In order to compare psuedorandomly-sampled and quasirandomly sampled populations
 Since computers vary widely in performance for many reasons, we present
 performance values normalised to the execution time of QIWS for the first test case. For reference, the hardware used was a recent, fairly standard desktop PC and the performance test run times (for 1000 tests) were of the order of seconds.
 
-The test timing results are summarised in table \ref{tab2} for a number of theoretical and more realistic test cases.
+The test timing results are summarised in table \ref{tab:perf} for a number of theoretical and more realistic test cases.
 
 \begin{table}[!t]
 	\centering
-	\begin{tabular}{|c|c|c|c|c|}\hline
-	  Pop & States & N & QIWS & IPF\\\hline
-	  20 & 4 & 1000 & 1.0 & 66.3 \\
-	  125 & 25 & 1000 & 1.3 & 96.7\\
-	  935 & 49 & 1000 & 2.3 & 68.3\\
-	  4958 & 16032 & 1000 & 30.7 & 1559.3\\
-	  4098 & 11760 & 1000 & 23.0 & 1069.0\\
-	  4029 & 11904 & 1000 & 22.7 & 1027.3\\
-	  4989 & 14640 & 1000 & 28.3 & 1457.0\\
-	  5219 & 15168 & 1000 & 28.7 & 1557.7\\\hline		
+	\begin{tabular}{|c|c|c|c|}\hline
+	  Pop & States & QIWS & IPF\\\hline
+	  20 & 4 & 1.0 & 66.3 \\
+	  125 & 25 & 1.3 & 96.7\\
+	  935 & 49 & 2.3 & 68.3\\
+	  4958 & 16032 & 30.7 & 1559.3\\
+	  4098 & 11760 & 23.0 & 1069.0\\
+	  4029 & 11904 & 22.7 & 1027.3\\
+	  4989 & 14640 & 28.3 & 1457.0\\
+	  5219 & 15168 & 28.7 & 1557.7\\\hline		
 	\end{tabular}
-	\caption{Relative computation time of the algorithms for \(N\) runs, using the first case as a baseline.}
-	\label{tab2}	
+	\caption{Relative computation time of the algorithms (averaged over 1000 runs), using the first case as a baseline.}
+	\label{tab:perf}	
 \end{table}
 
 \section{Discussion}\label{discussion}
@@ -650,7 +650,7 @@ discussed below.
 
 \subsubsection{Randomness in Context}\label{randomness-in-context}
 
-To put pseudorandom versus quasirandom sampling into context, and to explain at least intuitively\footnote{We do not present this as a mathmatically rigorous analysis.} 
+To put pseudorandom versus quasirandom sampling into context, and to explain at least intuitively\footnote{We do not present this as a mathematically rigorous analysis.} 
 why we observe different distributions of p-values (tables \ref{fig:hist_sampling1} to \ref{fig:hist_sampling100}), firstly consider a
 `random' number generator that simply always returns zero. If we used
 this as the basis for without-replacement sampling of a marginal
@@ -707,13 +707,13 @@ For low population densities, there is evidence of `quantisation' of the p-value
 
 \subsubsection{Statistical Likelihood}\label{degeneracy}
 
-The \(\chi^2\) value resulting from QIWS cannot generally be as low as zero simply due to the fact the population is not integral.
+The minimum \(\chi^2\) value possible from a sampled integral population is generally greater than zero simply due to the fact that the expected population in each state may not be integral. Thus a p-value of exactly unity is not always possible.
 
-As explained is the previous section, QIWS has a strong bias towards high p-values but may still produce statisitcally unlikely populations. The \(\chi^2\) and p-value that are supplied along with the population should be checked against some suitable threshold and resample if necessary.
+As explained is the previous section, QIWS has a strong bias towards high p-values but may nevertheless produce statistically unlikely populations. The \(\chi^2\) and p-value that are supplied along with the population should be checked against some suitable threshold, resampling as necessary.
 
 \subsection{Performance}\label{performance-1}
 
-QIWS performance in terms of computational efficiency is far superior to the IPF implemenation we compared it to. One reason for this is that QIWS is not iterative, but the following points should also be noted:
+QIWS performance in terms of computational efficiency is far superior to the IPF implementation we compared it to. One reason for this is that QIWS is not iterative, but the following points should also be noted:
 
 \begin{itemize*}
 \item
@@ -729,27 +729,26 @@ QIWS performance in terms of computational efficiency is far superior to the IPF
 
 \subsection{Application / Range of Use}\label{application-range-of-use}
 
+For agent-based modelling (ABM) applications, QIWS has the advantage
+that it only generates integer populations. Thus integerisation, which
+may alter the population in such a way that the marginals are no longer
+met, is not required.
+
+An alternative to integerisation is sampling. Such techniques have been documented, although none mention the use of quasirandom sampling. For example, in the doubly-constrained model described in \cite{lenormand_systematic_2016}, they use a fractional population generated with IPF as a joint distribution from which to randomly sample individuals. In \cite{gargiulo_commuting_2012} without-replacement sampling is also used with the joint distribution dynamically updated after each sample.
+
 IPF can be used for microsimulation in cases where some marginal data is
 not fully specified. For example, some categorical constraint data may
-only be available for a subset of the whole population, which may also contain marginal data in other categories. By using this
+only be available for a subset of the whole population. By using this
 data as a seed population, rather than as a marginal
 constraint, the incomplete data is scaled to, and smoothed over, the
 overall population. An example of this type of microsimulation
 ``CakeMap'' is given in \cite{lovelace_spatial_2016}.
 
-Similar sampling techniques have been implemented, although none mention the use of quasirandom sampling. For example, in the doubly-constrained model described in \cite{lenormand_systematic_2016}, they use a fractional population generated with IPF as a joint distribution from which to randomly sample individuals. In \cite{gargiulo_commuting_2012} without-replacement sampling is used and the joint distribution is dynamically updated after each sample.
-
-The authors believe that the current implementation of QIWS could be extended to deal with problems such as ``CakeMap'' or more generaly ones where some exogenous data must be taken into account. The approach would be to construct a dynamic joint distribution from marginal and exogenous data, updating as each sample is taken.
-
-For agent-based modelling (ABM) applications, QIWS has the advantage
-that it always generates integer populations. Thus integerisation, which
-may alter the population in such a way that the marginals are no longer
-met, is not required.
+The authors believe that the current implementation of QIWS could be extended to deal with problems such as ``CakeMap'' or more generally ones where some exogenous data must be taken into account. The approach would be to construct a dynamic joint distribution from marginal and exogenous data, updating as each sample is taken.
 
 With given marginals and seed population, IPF will always result in the same overall population. QIWS differs in this respect in that the same inputs can be used to generate multiple different populations, all of which meet the marginal constraints. These could potentially used in an ensemble simulation to test the sensitivity of a model to different synthetic populations generated from the same marginal data.
 
-QIWS may potentially be of use in the process of anonymising
-populations. It is outside the scope of this work, but since full
+QIWS may potentially be of use in the process of anonymisation by microsynthesising aggregate data from a known population. It is outside the scope of this work, but since full
 marginal data will likely be available, its use in this context may be
 worth investigating.
 
@@ -766,17 +765,18 @@ work locations (at MSOA resolution), mode of transport, gender, age
 group, and economic activity type, with the crowdsourced data overlaid
 on the larger census population.
 
-The QIWS algorithm was thus designed with this type of synthesis in
-mind, where all marginal data is fully specified, and in this context it
-fulfils the requirements.
+Our analysis shows that quasirandom sampling results in more statistically likely populations than pseudorandom sampling as illustrated in the histograms in tables \ref{fig:hist_sampling1} to \ref{fig:hist_sampling100}. The statistical likelihood/significance of the sampled population may vary and thus metrics are provided to guide the user in determining the suitability of the generated population.
 
-The algorithm computes the statistical likelihood/significance metrics in 
-order to guide the user in determining the suitability of the generated population.
+In situations where integral populations with high statistical likelihood are desirable QIWS presents an
+advantage over established techniques by either eliminating the need for integerisation, or by its use of quasirandom sequences to create high-entropy sampled populations.  
 
-In situations where integral populations are desirable QIWS presents an
-advantage over established techniques by eliminating the need for
-postprocessing the population - for instance by integerisation.
+In its current implementation, QIWS is more limited in scope than IPF in that it is unable to deal with cases where some marginal data is not explicitly specified, instead being expressed in the seed population used to initialise the IPF iteration. 
 
+The authors are working on extending the technique to allow for
+exogenous data to be specified alongside the marginals, akin to the use of a seed in IPF. The approach is to separate the sampling into two connected joint distributions: one from which the samples are taken (containing exogenous data), and one from which samples are removed (in order to preserve the marginals). Whilst the algorithm has been demonstrated to work, further testing is required, and will specifically focus on cases where IPF does not perform well, such as the prevalence of a high proportion of ``empty cells".
+
+%Although situations do arise where the distributions diverge in such a way that it is not possible to sample from one and remove from the other, the population can often be adjusted to correct for this.  
+ 
 In applications where performance is a key factor, we have shown that
 our implementation of QIWS comfortably outperforms a popular \texttt{R}
 implementation of IPF (Barthelemy and Suesse 2016). For large-scale
@@ -788,21 +788,13 @@ the algorithm could equally be applied to an anonymisation process
 whereby individual-level data is first aggregated and then synthesised,
 for example \cite{nowok_synthpop:_2016}.
 
-We are aware that in its current implementation, QIWS is more limited in scope than IPF in that it is
-unable to deal with cases where some marginal data is not explicitly
-specified, instead being expressed in the seed population used to
-initialise the IPF iteration. It may be that with further development of
-the algorithm some of these limitations could be overcome.
-
-Our analysis of why quasirandom sampling results in more statistically likely populations than pseudorandom sampling is not mathematically rigourous, and perhaps more could be done to explain the shapes of the histograms in table \ref{fig:hist_sampling}.
-
 We envisage QIWS as an evolving technique that complements rather than
-supplants established methods, and publicise the technique as such. The current implementation could perhaps be extended to deal with correlated and/or constrained marginals, and to be able to use data supplied as a smaller seed population as opposed to a fully-populated marginal.
+supplants established methods, and publicise the technique as such. With ongoing development of the algorithm we hope to extend it to deal with more complex microsynthesis problems.
 
 \section{Acknowledgements}\label{acknowledgements}
 
 The authors acknowledge Innovate UK's Catch! project for providing the
-funding for this work. We are grateful to two anonymous reviewers for helpful comments on an earlier draft of this manuscript
+funding for this work. We are very grateful to the anonymous reviewers who have provided helpful comments and guidance during the development of this manuscript.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
