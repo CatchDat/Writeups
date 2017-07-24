@@ -192,7 +192,7 @@ sequences.
 
 Working exclusively in the integer domain requires that marginal frequencies are integral. Often, these are expressed as probabilities rather than frequencies. We propose that integerising each marginal at this stage is preferable to integerising the final population. Mathematically, integerisation in a single dimension is straightforward and a demonstrably optimal (i.e. closest) solution can always be reached.    
 
-We show that by using without-replacement sampling we can guarantee that the randomly sampled population will exactly match the marginal data. Secondly we compare the statistical properties of populations generated with IPF, and sampled using pseudo- and quasirandom numbers  showing that the latter sampling technique provides far better degeneracy, closer to the maximal entropy solution that IPF converges to.
+We first show that by using without-replacement sampling guarantees that the randomly sampled population will exactly match the marginal data. We then compare the statistical properties of populations sampled using pseudo- and quasirandom numbers showing that the quasirandom sampling technique provides far better degeneracy, achieving solutions closer to the maximal entropy solution that IPF converges to.
 
 \section{Theory}\label{theory}
 
@@ -599,7 +599,7 @@ The test timing results are summarised in table \ref{tab:perf} for a number of t
 
 \section{Discussion}\label{discussion}
 
-\subsection{Evolution of the algorithm.}\label{evolution-of-the-algorithm.}
+\subsection{Evolution of the algorithm}\label{evolution-of-the-algorithm}
 
 Firstly, it was demonstrated that naive pseudorandom sampling could not
 reliably generate populations matching the marginals. Since successive
@@ -741,8 +741,8 @@ not fully specified. For example, some categorical constraint data may
 only be available for a subset of the whole population. By using this
 data as a seed population, rather than as a marginal
 constraint, the incomplete data is scaled to, and smoothed over, the
-overall population. An example of this type of microsimulation
-``CakeMap'' is given in \cite{lovelace_spatial_2016}.
+overall population. This type of microsimulation
+is described and discussed in the ``CakeMap'' example in \cite{lovelace_spatial_2016}.
 
 The authors believe that the current implementation of QIWS could be extended to deal with problems such as ``CakeMap'' or more generally ones where some exogenous data must be taken into account. The approach would be to construct a dynamic joint distribution from marginal and exogenous data, updating as each sample is taken.
 
@@ -794,7 +794,7 @@ supplants established methods, and publicise the technique as such. With ongoing
 \section{Acknowledgements}\label{acknowledgements}
 
 The authors acknowledge Innovate UK's Catch! project for providing the
-funding for this work. We are very grateful to the anonymous reviewers who have provided helpful comments and guidance during the development of this manuscript.
+funding for this work. We are grateful to the anonymous reviewers who provided very helpful feedback during the development of this manuscript.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
